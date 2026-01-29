@@ -1,0 +1,2134 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - DKotoba</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        },
+                        secondary: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a'
+                        },
+                        success: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        },
+                        danger: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            200: '#fecaca',
+                            300: '#fca5a5',
+                            400: '#f87171',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                            800: '#991b1b',
+                            900: '#7f1d1d'
+                        },
+                        warning: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                        'slide-in': 'slide-in 0.3s ease-out',
+                        'fade-in': 'fade-in 0.5s ease-out',
+                        'shimmer': 'shimmer 2s infinite linear',
+                        'bounce-slow': 'bounce-slow 2s infinite'
+                    },
+                    keyframes: {
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.7 }
+                        },
+                        'slide-in': {
+                            '0%': { transform: 'translateX(-10px)', opacity: 0 },
+                            '100%': { transform: 'translateX(0)', opacity: 1 }
+                        },
+                        'fade-in': {
+                            '0%': { opacity: 0 },
+                            '100%': { opacity: 1 }
+                        },
+                        'shimmer': {
+                            '0%': { backgroundPosition: '-1000px 0' },
+                            '100%': { backgroundPosition: '1000px 0' }
+                        },
+                        'bounce-slow': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' }
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'gradient-shimmer': 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script src="../../assets/js/storage.js"></script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+        }
+
+        .neumorphic {
+            border-radius: 20px;
+            background: #f0f0f0;
+            box-shadow: 20px 20px 60px #d9d9d9,
+                -20px -20px 60px #ffffff;
+        }
+
+        .dark .neumorphic {
+            background: #1e293b;
+            box-shadow: 20px 20px 60px #0f172a,
+                -20px -20px 60px #334155;
+        }
+
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .card-hover:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .line-clamp {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .scrollbar-thin {
+            scrollbar-width: thin;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .dark .scrollbar-thin::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .animate-gradient {
+            background-size: 200% 200%;
+            animation: gradient 3s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 text-slate-800 dark:text-slate-200 font-sans h-screen overflow-hidden transition-colors duration-300"
+    x-data="adminDashboard()" x-init="initDashboard()" :class="{ 'dark': darkMode }">
+
+    <!-- Auth Check -->
+
+
+    <!-- Main Layout -->
+    <div class="flex h-full relative">
+        <!-- Floating Sidebar -->
+        <aside :class="sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'"
+            class="fixed inset-y-4 left-4 z-50 w-72 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-slate-700/30 transition-all duration-500 ease-out md:relative md:translate-x-0 md:inset-y-auto md:left-auto md:ml-4 md:my-4 flex flex-col shadow-xl overflow-hidden">
+
+            <!-- Sidebar Header with Gradient -->
+            <div class="p-6 bg-gradient-to-r from-primary-600 to-slate-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                <span class="text-2xl font-black text-white">D</span>
+                            </div>
+                            <div
+                                class="absolute -top-1 -right-1 w-5 h-5 bg-success-400 rounded-full border-2 border-white dark:border-slate-800 animate-pulse">
+                            </div>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-black text-white tracking-tight">DKotoba</h1>
+                            <p class="text-xs text-white/80 font-medium">Admin Panel</p>
+                        </div>
+                    </div>
+                    <button @click="sidebarOpen = false" class="md:hidden text-white/70 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin">
+                <template x-for="item in navItems" :key="item.id">
+                    <a href="#" @click.prevent="currentView = item.id; sidebarOpen = false"
+                        :class="currentView === item.id 
+                            ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg' 
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 hover:text-primary-600 dark:hover:text-primary-400'"
+                        class="flex items-center gap-4 px-4 py-3 rounded-xl font-semibold transition-all duration-300 group relative overflow-hidden">
+                        <div class="relative z-10 flex items-center gap-3">
+                            <div class="w-8 h-8 flex items-center justify-center"
+                                :class="currentView === item.id ? 'text-white' : 'text-primary-500 dark:text-primary-400'">
+                                <span x-html="item.icon"></span>
+                            </div>
+                            <span x-text="item.label" class="text-sm"></span>
+                        </div>
+                        <div x-show="currentView === item.id" class="absolute right-4">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </a>
+                </template>
+            </nav>
+
+            <!-- User Profile & Settings -->
+            <div class="p-4 border-t border-slate-200/50 dark:border-slate-700/50 space-y-3">
+                <!-- Theme Toggle -->
+                <button @click="darkMode = !darkMode"
+                    class="w-full flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors group">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg class="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path x-show="!darkMode" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                <path x-show="darkMode" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            <span x-show="!darkMode">Mode Gelap</span>
+                            <span x-show="darkMode">Mode Terang</span>
+                        </span>
+                    </div>
+                    <div class="relative w-12 h-6 bg-slate-300 dark:bg-slate-600 rounded-full transition-colors">
+                        <div :class="darkMode ? 'translate-x-6' : 'translate-x-1'"
+                            class="absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300">
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Logout -->
+                <button @click="logout()"
+                    class="w-full flex items-center gap-3 p-3 rounded-xl text-danger-600 dark:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-900/20 transition-colors group">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-semibold">Keluar</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Overlay -->
+        <div x-show="sidebarOpen" @click="sidebarOpen = false" x-transition.opacity
+            class="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm md:hidden"></div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+            <!-- Top Navigation Bar -->
+            <header class="sticky top-0 z-30">
+                <div
+                    class="h-20 px-6 md:px-8 flex items-center justify-between bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50">
+                    <!-- Left Section -->
+                    <div class="flex items-center gap-4">
+                        <button @click="sidebarOpen = true"
+                            class="md:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+
+                        <!-- Breadcrumb -->
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-slate-500 dark:text-slate-400">Dashboard</span>
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                            <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 capitalize"
+                                x-text="currentView === 'setting' ? 'Pengaturan' : navItems.find(i => i.id === currentView)?.label || currentView"></span>
+                        </div>
+                    </div>
+
+                    <!-- Right Section -->
+                    <div class="flex items-center gap-4">
+                        <!-- Notifications -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open"
+                                class="p-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors relative">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                <span
+                                    class="absolute -top-1 -right-1 w-5 h-5 bg-danger-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse">3</span>
+                            </button>
+
+                            <!-- Notifications Dropdown -->
+                            <div x-show="open" @click.outside="open = false"
+                                class="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 py-2 z-50">
+                                <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+                                    <h3 class="font-bold text-slate-800 dark:text-slate-200">Notifikasi</h3>
+                                </div>
+                                <div class="max-h-96 overflow-y-auto">
+                                    <template x-for="(notif, index) in notifications" :key="index">
+                                        <a href="#"
+                                            class="block px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                            <div class="flex gap-3">
+                                                <div :class="notif.type === 'success' ? 'bg-success-100 text-success-600' : notif.type === 'warning' ? 'bg-warning-100 text-warning-600' : 'bg-primary-100 text-primary-600'"
+                                                    class="w-10 h-10 rounded-xl flex items-center justify-center">
+                                                    <span x-html="notif.icon"></span>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <p class="text-sm font-semibold text-slate-800 dark:text-slate-200"
+                                                        x-text="notif.title"></p>
+                                                    <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2"
+                                                        x-text="notif.body"></p>
+                                                    <button @click.stop="viewContent(notif.id)"
+                                                        class="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-1 font-medium">Baca
+                                                        Selengkapnya</button>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Profile -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="flex items-center gap-3 group focus:outline-none">
+                                <div class="text-right hidden md:block">
+                                    <p class="text-sm font-bold text-slate-800 dark:text-slate-200"
+                                        x-text="currentUser.fullName || currentUser.username"></p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Administrator</p>
+                                </div>
+                                <div class="relative">
+                                    <div
+                                        class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-slate-500 flex items-center justify-center font-bold text-white text-lg ring-2 ring-white dark:ring-slate-800 shadow-lg group-hover:scale-105 transition-transform">
+                                        <span
+                                            x-text="(currentUser.fullName || currentUser.username || 'A').charAt(0).toUpperCase()"></span>
+                                    </div>
+                                    <div
+                                        class="absolute -bottom-1 -right-1 w-4 h-4 bg-success-400 rounded-full border-2 border-white dark:border-slate-800">
+                                    </div>
+                                </div>
+                            </button>
+
+                            <!-- Profile Dropdown -->
+                            <div x-show="open" @click.outside="open = false"
+                                class="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 py-2 z-50">
+                                <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+                                    <p class="text-xs text-slate-400 dark:text-slate-500 font-semibold uppercase">Masuk
+                                        sebagai</p>
+                                    <p class="text-sm font-bold text-slate-900 dark:text-slate-100 truncate mt-0.5"
+                                        x-text="currentUser.username"></p>
+                                </div>
+                                <a href="#" @click.prevent="currentView = 'setting'; open = false"
+                                    class="block px-4 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium flex items-center gap-3 transition-colors mx-2 rounded-xl">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    Pengaturan
+                                </a>
+                                <button @click="logout()"
+                                    class="w-full text-left block px-4 py-3 text-sm text-danger-600 dark:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-900/20 font-medium flex items-center gap-3 transition-colors mx-2 rounded-xl">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                    Keluar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="flex-1 overflow-y-auto p-6 md:p-8 relative scrollbar-thin">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Animated Background Elements -->
+                    <div class="fixed inset-0 -z-10 overflow-hidden">
+                        <div
+                            class="absolute -top-40 -right-40 w-80 h-80 bg-blue-100 dark:bg-blue-900/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-50 animate-float">
+                        </div>
+                        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-slate-200 dark:bg-slate-800/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-50 animate-float"
+                            style="animation-delay: 1s"></div>
+                    </div>
+
+                    <!-- VIEW: DASHBOARD -->
+                    <div x-show="currentView === 'dashboard'" x-transition.opacity class="space-y-8 animate-fade-in">
+                        <!-- Welcome Banner -->
+                        <div
+                            class="bg-gradient-to-r from-blue-700 via-blue-600 to-slate-500 rounded-3xl p-8 text-white shadow-xl shadow-blue-500/10">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h1 class="text-3xl font-black mb-2">Selamat datang, <span
+                                            x-text="currentUser.fullName || currentUser.username"></span>! 👋</h1>
+                                    <p class="text-primary-100 opacity-90">Kelola platform pembelajaran dengan mudah
+                                        menggunakan dashboard ini.</p>
+                                </div>
+                                <div class="hidden md:block animate-bounce-slow">
+                                    <svg class="w-24 h-24 opacity-50" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <!-- Siswa Card -->
+                            <div class="glass-panel rounded-2xl p-6 card-hover group">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div
+                                        class="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                    </div>
+                                    <span
+                                        class="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">+12%</span>
+                                </div>
+                                <h3 class="text-3xl font-black text-slate-800 dark:text-slate-100 mb-1"
+                                    x-text="stats.totalStudents"></h3>
+                                <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Total Siswa</p>
+                                <div class="mt-4 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-600 rounded-full" style="width: 75%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Materi Card -->
+                            <div class="glass-panel rounded-2xl p-6 card-hover group">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div
+                                        class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:bg-slate-600 group-hover:text-white transition-colors">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                    </div>
+                                    <span
+                                        class="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">24
+                                        Aktif</span>
+                                </div>
+                                <h3 class="text-3xl font-black text-slate-800 dark:text-slate-100 mb-1"
+                                    x-text="stats.totalContent"></h3>
+                                <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Total Materi</p>
+                                <div class="mt-4 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                    <div class="h-full bg-slate-500 rounded-full" style="width: 60%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Kuis/Soal Card -->
+                            <div class="glass-panel rounded-2xl p-6 card-hover group">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div
+                                        class="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                        </svg>
+                                    </div>
+                                    <span
+                                        class="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">+5%</span>
+                                </div>
+                                <h3 class="text-3xl font-black text-slate-800 dark:text-slate-100 mb-1"
+                                    x-text="stats.totalQuizzes">0</h3>
+                                <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Total Soal / Kuis</p>
+                                <div class="mt-4 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-400 rounded-full" style="width: 85%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Progress Card -->
+                            <div class="glass-panel rounded-2xl p-6 card-hover group">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div
+                                        class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:bg-slate-500 group-hover:text-white transition-colors">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                        </svg>
+                                    </div>
+                                    <span
+                                        class="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">78%</span>
+                                </div>
+                                <h3 class="text-3xl font-black text-slate-800 dark:text-slate-100 mb-1">94%</h3>
+                                <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Keterlibatan</p>
+                                <div class="mt-4 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                    <div class="h-full bg-slate-400 rounded-full" style="width: 78%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts & Leaderboard Section -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Leaderboard -->
+                            <div class="glass-panel rounded-2xl p-6">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">🏆 Top 5 Siswa</h3>
+                                    <button @click="currentView = 'leaderboard'"
+                                        class="text-sm text-primary-600 dark:text-primary-400 font-semibold hover:underline">Lihat
+                                        Semua</button>
+                                </div>
+                                <div class="space-y-4">
+                                    <template x-for="(item, index) in leaderboard" :key="index">
+                                        <div
+                                            class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-sm"
+                                                    :class="index === 0 ? 'bg-blue-600' : index === 1 ? 'bg-slate-500' : index === 2 ? 'bg-slate-400' : 'bg-slate-300 dark:bg-slate-700'">
+                                                    <span x-text="index + 1"></span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold text-slate-800 dark:text-slate-100"
+                                                        x-text="item.fullName || item.username"></p>
+                                                    <p class="text-xs text-slate-500 dark:text-slate-400">Siswa</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-black text-slate-900 dark:text-white"
+                                                    x-text="item.score"></p>
+                                                <p class="text-xs text-slate-500 dark:text-slate-400">Skor</p>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Quick Stats -->
+                            <div class="glass-panel rounded-2xl p-6">
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6">📊 Statistik Cepat
+                                </h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl">
+                                        <p class="text-2xl font-black text-blue-600 dark:text-blue-400"
+                                            x-text="stats.totalStudents"></p>
+                                        <p class="text-sm text-slate-600 dark:text-slate-400">Siswa Aktif</p>
+                                    </div>
+                                    <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl">
+                                        <p class="text-2xl font-black text-slate-600 dark:text-slate-400"
+                                            x-text="stats.totalContent"></p>
+                                        <p class="text-sm text-slate-600 dark:text-slate-400">Kuis Aktif</p>
+                                    </div>
+                                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl">
+                                        <p class="text-2xl font-black text-blue-600 dark:text-blue-400">94%</p>
+                                        <p class="text-sm text-slate-600 dark:text-slate-400">Rata² Nilai</p>
+                                    </div>
+                                    <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl">
+                                        <p class="text-2xl font-black text-slate-600 dark:text-slate-400">1.2k</p>
+                                        <p class="text-sm text-slate-600 dark:text-slate-400">Interaksi</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIEW: SISWA -->
+                    <div x-show="currentView === 'siswa'" x-cloak class="space-y-6 animate-fade-in">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100">👥 Manajemen Siswa
+                                </h3>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Kelola akun siswa yang
+                                    terdaftar di platform</p>
+                            </div>
+                            <button @click="addUser()"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:shadow-xl active:scale-95 transition-all flex items-center gap-2 group">
+                                <svg class="w-5 h-5 group-hover:rotate-90 transition-transform" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                                Tambah Siswa
+                            </button>
+                        </div>
+
+                        <!-- Search Bar -->
+                        <div class="glass-panel rounded-2xl p-4">
+                            <div class="flex gap-4">
+                                <div class="flex-1 relative">
+                                    <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <input type="text" x-model="searchQuery" @input="searchUsers()"
+                                        placeholder="Cari siswa berdasarkan nama atau username..."
+                                        class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all">
+                                </div>
+                                <button @click="refreshData()"
+                                    class="px-4 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl transition-colors">
+                                    <svg class="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Students Table -->
+                        <div class="glass-panel rounded-2xl overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-slate-50 dark:bg-slate-700/50">
+                                        <tr>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Siswa</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Username</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Password</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Status</th>
+                                            <th
+                                                class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                                        <template x-for="(user, index) in filteredUsers" :key="user.id">
+                                            <tr
+                                                class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="relative">
+                                                            <div
+                                                                class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-300 text-sm">
+                                                                <span
+                                                                    x-text="(user.fullName || user.username).charAt(0).toUpperCase()"></span>
+                                                            </div>
+                                                            <div
+                                                                class="absolute -bottom-1 -right-1 w-3 h-3 bg-success-400 rounded-full border-2 border-white dark:border-slate-800">
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <p class="font-semibold text-slate-800 dark:text-slate-100"
+                                                                x-text="user.fullName || '-'"></p>
+                                                            <p class="text-xs text-slate-500 dark:text-slate-400">ID:
+                                                                <span x-text="user.id.substring(0, 8)"></span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <div
+                                                        class="inline-flex items-center gap-2 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
+                                                        <span
+                                                            class="text-sm text-slate-500 dark:text-slate-400">@</span>
+                                                        <span
+                                                            class="text-sm font-medium text-slate-700 dark:text-slate-300"
+                                                            x-text="user.username"></span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <span
+                                                            class="font-mono text-sm text-slate-600 dark:text-slate-300"
+                                                            x-text="showPassword[user.id] ? user.password : '••••••••'"></span>
+                                                        <button @click="togglePassword(user.id)"
+                                                            class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-xs font-medium">
+                                                            <span
+                                                                x-text="showPassword[user.id] ? 'Sembunyikan' : 'Tampilkan'"></span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span
+                                                        class="px-3 py-1 rounded-full text-xs font-bold bg-success-50 dark:bg-success-900/30 text-success-600 dark:text-success-400">Aktif</span>
+                                                </td>
+                                                <td class="px-6 py-4 text-right">
+                                                    <div class="flex items-center justify-end gap-2">
+                                                        <button @click="viewUser(user.id)"
+                                                            class="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                                            title="Lihat Detail">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                            </svg>
+                                                        </button>
+                                                        <button @click="editUser(user.id)"
+                                                            class="p-2 text-slate-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg transition-colors"
+                                                            title="Edit">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                            </svg>
+                                                        </button>
+                                                        <button @click="deleteUser(user.id)"
+                                                            class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                            title="Hapus">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div x-show="filteredUsers.length === 0" class="text-center py-16">
+                                <div class="w-24 h-24 mx-auto mb-4 text-slate-300 dark:text-slate-600">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                </div>
+                                <h4 class="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">Tidak ada
+                                    siswa</h4>
+                                <p class="text-slate-500 dark:text-slate-400 mb-4">Belum ada siswa yang terdaftar di
+                                    sistem.</p>
+                                <button @click="addUser()"
+                                    class="text-primary-600 dark:text-primary-400 font-semibold hover:underline">
+                                    Tambah siswa pertama
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIEW: QUESTIONS -->
+                    <div x-show="currentView === 'questions'" x-cloak class="space-y-6 animate-fade-in">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100">📚 Kelola Materi</h3>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Buat, edit, dan hapus konten
+                                    pembelajaran</p>
+                            </div>
+                            <button @click="openModal()"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:shadow-xl active:scale-95 transition-all flex items-center gap-2 group">
+                                <svg class="w-5 h-5 group-hover:rotate-90 transition-transform" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                                Materi Baru
+                            </button>
+                        </div>
+
+                        <!-- Content Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <template x-for="item in contentList" :key="item.id">
+                                <div class="group relative">
+                                    <div class="glass-panel rounded-2xl p-6 h-full flex flex-col card-hover cursor-pointer"
+                                        @click="viewContent(item.id)">
+                                        <div class="flex justify-between items-start mb-4">
+                                            <div
+                                                class="px-3 py-1 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20">
+                                                <span
+                                                    class="text-xs font-bold text-blue-600 dark:text-blue-400">MATERI</span>
+                                            </div>
+                                            <span class="text-xs text-slate-500 dark:text-slate-400"
+                                                x-text="item.date"></span>
+                                        </div>
+                                        <h4 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2 line-clamp-2"
+                                            x-text="item.title"></h4>
+                                        <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp mb-6 flex-1"
+                                            x-text="item.body"></p>
+                                        <div
+                                            class="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-slate-700">
+                                            <div
+                                                class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                                1.2k views
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <button @click.stop="editItem(item.id)"
+                                                    class="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                                    title="Edit">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                </button>
+                                                <button @click.stop="deleteContent(item.id)"
+                                                    class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                    title="Hapus">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div x-show="contentList.length === 0" class="glass-panel rounded-2xl p-16 text-center">
+                            <div class="w-24 h-24 mx-auto mb-6 text-slate-300 dark:text-slate-600">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">Belum ada konten</h4>
+                            <p class="text-slate-500 dark:text-slate-400 mb-6 max-w-md mx-auto">Mulai buat konten
+                                pembelajaran pertama Anda untuk membantu siswa belajar lebih efektif.</p>
+                            <button @click="openModal()"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/25 hover:shadow-xl active:scale-95 transition-all">
+                                Buat Konten Pertama
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- VIEW: SOAL -->
+                    <div x-show="currentView === 'soal'" x-cloak class="space-y-6 animate-fade-in">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100">📝 Manajemen Soal
+                                </h3>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Kelola bank soal dan kuis
+                                    untuk siswa</p>
+                            </div>
+                            <button @click="openSoalModal()"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:shadow-xl active:scale-95 transition-all flex items-center gap-2 group">
+                                <svg class="w-5 h-5 group-hover:rotate-90 transition-transform" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                                Buat Soal
+                            </button>
+                        </div>
+
+                        <!-- Quizzes Table -->
+                        <div class="glass-panel rounded-2xl overflow-hidden" x-show="soalList.length > 0">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-slate-50 dark:bg-slate-700/50">
+                                        <tr>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Nama Soal</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Jumlah Soal</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Status</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Link</th>
+                                            <th
+                                                class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                                        <template x-for="quiz in soalList" :key="quiz.id">
+                                            <tr
+                                                class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
+                                                <td class="px-6 py-4">
+                                                    <p class="font-semibold text-slate-800 dark:text-slate-100"
+                                                        x-text="quiz.title"></p>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span class="text-sm text-slate-600 dark:text-slate-300"
+                                                        x-text="quiz.questions"></span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span
+                                                        :class="quiz.status === 'publish' ? 'bg-success-50 dark:bg-success-900/30 text-success-600 dark:text-success-400' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
+                                                        class="px-3 py-1 rounded-full text-xs font-bold capitalize"
+                                                        x-text="quiz.status"></span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <a :href="quiz.link" target="_blank"
+                                                        class="text-primary-600 dark:text-primary-400 hover:underline text-sm truncate max-w-[200px] block"
+                                                        x-text="quiz.link"></a>
+                                                </td>
+                                                <td class="px-6 py-4 text-right">
+                                                    <div class="flex items-center justify-end gap-2">
+                                                        <button @click="editSoal(quiz.id)"
+                                                            class="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                                            title="Edit">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                            </svg>
+                                                        </button>
+                                                        <button @click="deleteSoal(quiz.id)"
+                                                            class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                            title="Hapus">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div x-show="soalList.length === 0" class="glass-panel rounded-2xl p-16 text-center">
+                            <div class="w-24 h-24 mx-auto mb-6 text-slate-300 dark:text-slate-600">
+                                <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">Soal Belum Tersedia
+                            </h4>
+                            <p class="text-slate-500 dark:text-slate-400 mb-6 max-w-md mx-auto">Mulai buat soal pertama
+                                Anda untuk melengkapi materi pembelajaran.</p>
+                            <button @click="openSoalModal()"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/25 hover:shadow-xl active:scale-95 transition-all">
+                                Buat Soal Pertama
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- VIEW: LEADERBOARD -->
+                    <div x-show="currentView === 'leaderboard'" x-cloak class="space-y-6 animate-fade-in">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100">🏆 Peringkat Siswa
+                                </h3>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Ranking berdasarkan performa
+                                    kuis tertinggi</p>
+                            </div>
+                            <button @click="exportLeaderboard()"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:shadow-xl active:scale-95 transition-all flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                </svg>
+                                Export Data
+                            </button>
+                        </div>
+
+                        <!-- Leaderboard Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                            <template x-for="(item, index) in leaderboard.slice(0, 3)" :key="index">
+                                <div
+                                    class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-700 relative overflow-hidden group hover:shadow-2xl transition-all duration-300">
+                                    <!-- Decorative Circle -->
+                                    <div
+                                        class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110">
+                                    </div>
+
+                                    <div class="relative z-10">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg transform group-hover:scale-110 transition-transform duration-300"
+                                                :class="index === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-500' : index === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-500' : 'bg-gradient-to-br from-orange-300 to-amber-600'">
+                                                <span x-text="index + 1"></span>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-3xl font-black text-slate-800 dark:text-slate-100"
+                                                    x-text="item.score"></p>
+                                                <p
+                                                    class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                                                    Total Skor</p>
+                                            </div>
+                                        </div>
+                                        <h4 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1"
+                                            x-text="item.fullName || item.username"></h4>
+                                        <p
+                                            class="text-sm text-blue-600 dark:text-blue-400 font-medium mb-4 flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                                                </path>
+                                            </svg>
+                                            Siswa Berprestasi
+                                        </p>
+                                        <div
+                                            class="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
+                                            <span x-text="(item.completedQuizzes || 0) + ' Kuis Selesai'"></span>
+                                            <span class="text-green-600 dark:text-green-400"
+                                                x-text="'Rata-rata: ' + (item.avgScore || 0) + '%'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Full Leaderboard Table -->
+                        <div class="glass-panel rounded-2xl overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-slate-50 dark:bg-slate-700/50">
+                                        <tr>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Rank</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Siswa</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Skor Total</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Kuis Selesai</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Rata-rata</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                                        <template x-for="(item, index) in leaderboard" :key="index">
+                                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                                                <td class="px-6 py-4">
+                                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-sm"
+                                                        :class="index < 3 ? (index === 0 ? 'bg-blue-600' : index === 1 ? 'bg-slate-500' : 'bg-slate-400') : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'">
+                                                        <span x-text="index + 1"></span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <div
+                                                            class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-300 text-sm">
+                                                            <span
+                                                                x-text="(item.fullName || item.username || '?').charAt(0).toUpperCase()"></span>
+                                                        </div>
+                                                        <div>
+                                                            <p class="font-semibold text-slate-800 dark:text-slate-100"
+                                                                x-text="item.fullName || item.username"></p>
+                                                            <p class="text-xs text-slate-500 dark:text-slate-400">Siswa
+                                                                Aktif</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span class="text-lg font-black text-slate-900 dark:text-slate-100"
+                                                        x-text="item.score"></span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span
+                                                        class="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                                                        x-text="(item.completedQuizzes || 0) + ' Kuis'"></span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <span
+                                                            class="text-sm font-semibold text-slate-900 dark:text-slate-100"
+                                                            x-text="(item.avgScore || 0) + '%'"></span>
+                                                        <div
+                                                            class="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                                            <div class="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full"
+                                                                :style="'width: ' + (item.avgScore || 0) + '%'"></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIEW: REPORT -->
+                    <div x-show="currentView === 'report'" x-cloak class="space-y-6 animate-fade-in">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100">📊 Laporan & Analitik
+                                </h3>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Analisis mendalam aktivitas
+                                    belajar siswa</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Coming Soon Card -->
+                            <div class="lg:col-span-2 glass-panel rounded-2xl p-8">
+                                <div class="flex items-center gap-6 mb-8">
+                                    <div
+                                        class="p-4 rounded-2xl bg-gradient-to-br from-primary-100 to-purple-100 dark:from-primary-900/20 dark:to-purple-900/20">
+                                        <svg class="w-12 h-12 text-primary-600 dark:text-primary-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xl font-bold text-slate-900 dark:text-slate-100">Fitur dalam
+                                            Pengembangan</h4>
+                                        <p class="text-slate-500 dark:text-slate-400 mt-1">Menu laporan mendalam akan
+                                            segera hadir!</p>
+                                    </div>
+                                </div>
+                                <p class="text-slate-600 dark:text-slate-300 mb-6">Kami sedang mengembangkan sistem
+                                    analitik yang canggih untuk memberikan wawasan mendalam tentang:</p>
+                                <ul class="space-y-3">
+                                    <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300">
+                                        <div class="w-2 h-2 rounded-full bg-primary-500"></div>
+                                        <span>Tren belajar siswa</span>
+                                    </li>
+                                    <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300">
+                                        <div class="w-2 h-2 rounded-full bg-primary-500"></div>
+                                        <span>Analisis performa kuis</span>
+                                    </li>
+                                    <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300">
+                                        <div class="w-2 h-2 rounded-full bg-primary-500"></div>
+                                        <span>Laporan aktivitas harian</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Stats Preview -->
+                            <div class="space-y-6">
+                                <div class="glass-panel rounded-2xl p-6">
+                                    <h4 class="font-bold text-slate-900 dark:text-slate-100 mb-4">Statistik Cepat</h4>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <div class="flex justify-between mb-1">
+                                                <span class="text-sm text-slate-600 dark:text-slate-400">Aktivitas
+                                                    Siswa</span>
+                                                <span
+                                                    class="text-sm font-semibold text-primary-600 dark:text-primary-400">78%</span>
+                                            </div>
+                                            <div
+                                                class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                                <div class="h-full bg-gradient-to-r from-primary-500 to-purple-500 rounded-full"
+                                                    style="width: 78%"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between mb-1">
+                                                <span class="text-sm text-slate-600 dark:text-slate-400">Penyelesaian
+                                                    Kuis</span>
+                                                <span
+                                                    class="text-sm font-semibold text-green-600 dark:text-green-400">92%</span>
+                                            </div>
+                                            <div
+                                                class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                                <div class="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full"
+                                                    style="width: 92%"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between mb-1">
+                                                <span class="text-sm text-slate-600 dark:text-slate-400">Kepuasan</span>
+                                                <span
+                                                    class="text-sm font-semibold text-orange-600 dark:text-orange-400">88%</span>
+                                            </div>
+                                            <div
+                                                class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                                <div class="h-full bg-gradient-to-r from-orange-500 to-yellow-400 rounded-full"
+                                                    style="width: 88%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIEW: SETTING -->
+                    <div x-show="currentView === 'setting'" x-cloak class="animate-fade-in">
+                        <div class="max-w-4xl mx-auto">
+                            <div class="mb-8">
+                                <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100">⚙️ Pengaturan Akun
+                                </h3>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Kelola profil dan preferensi
+                                    akun administrator</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                <!-- Profile Card -->
+                                <div class="lg:col-span-1">
+                                    <div class="glass-panel rounded-2xl p-6 sticky top-8">
+                                        <div class="text-center mb-6">
+                                            <div
+                                                class="w-24 h-24 mx-auto mb-4 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 text-3xl font-black">
+                                                <span
+                                                    x-text="(currentUser.fullName || currentUser.username).charAt(0).toUpperCase()"></span>
+                                            </div>
+                                            <h4 class="text-xl font-bold text-slate-900 dark:text-slate-100"
+                                                x-text="currentUser.fullName || currentUser.username"></h4>
+                                            <p class="text-slate-500 dark:text-slate-400 text-sm">Administrator</p>
+                                            <div class="mt-4">
+                                                <span
+                                                    class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-primary-100 to-purple-100 dark:from-primary-900/30 dark:to-purple-900/30 text-primary-600 dark:text-primary-400">Status
+                                                    Aktif</span>
+                                            </div>
+                                        </div>
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="text-slate-500 dark:text-slate-400">Terdaftar Sejak</span>
+                                                <span class="font-semibold text-slate-700 dark:text-slate-300">Mar
+                                                    2024</span>
+                                            </div>
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="text-slate-500 dark:text-slate-400">Total Siswa</span>
+                                                <span class="font-semibold text-slate-700 dark:text-slate-300"
+                                                    x-text="stats.totalStudents"></span>
+                                            </div>
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="text-slate-500 dark:text-slate-400">Total Kuis</span>
+                                                <span class="font-semibold text-slate-700 dark:text-slate-300"
+                                                    x-text="stats.totalContent"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Settings Form -->
+                                <div class="lg:col-span-2 space-y-6">
+                                    <div class="glass-panel rounded-2xl p-6">
+                                        <h4 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-6">Informasi
+                                            Profil</h4>
+                                        <form @submit.prevent="updateProfile" class="space-y-5">
+                                            <div>
+                                                <label
+                                                    class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Nama
+                                                    Lengkap</label>
+                                                <input type="text" x-model="profileForm.fullName"
+                                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all font-medium"
+                                                    placeholder="Masukkan nama lengkap">
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Username</label>
+                                                <input type="text" x-model="profileForm.username"
+                                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all font-medium"
+                                                    placeholder="Masukkan username">
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Password
+                                                    Baru <span
+                                                        class="text-slate-400 font-normal">(opsional)</span></label>
+                                                <div class="relative">
+                                                    <input :type="showNewPassword ? 'text' : 'password'"
+                                                        x-model="profileForm.password"
+                                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all font-medium pr-12"
+                                                        placeholder="Kosongkan jika tidak ingin mengubah">
+                                                    <button type="button" @click="showNewPassword = !showNewPassword"
+                                                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path x-show="!showNewPassword" stroke-linecap="round"
+                                                                stroke-linejoin="round" stroke-width="2"
+                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            <path x-show="!showNewPassword" stroke-linecap="round"
+                                                                stroke-linejoin="round" stroke-width="2"
+                                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                            <path x-show="showNewPassword" stroke-linecap="round"
+                                                                stroke-linejoin="round" stroke-width="2"
+                                                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Minimum 8
+                                                    karakter dengan kombinasi huruf dan angka</p>
+                                            </div>
+
+                                            <div class="pt-4 flex items-center justify-between">
+                                                <p x-text="profileMsg"
+                                                    :class="profileMsgType === 'success' ? 'text-success-600 dark:text-success-400' : 'text-danger-600 dark:text-danger-400'"
+                                                    class="text-sm font-semibold"></p>
+                                                <button type="submit"
+                                                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:shadow-xl active:scale-95 transition-all flex items-center gap-2">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    Simpan Perubahan
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Content Modal -->
+    <div x-show="modalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4" x-cloak>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="closeModal()"></div>
+        <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-3xl shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden transform transition-all"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+
+            <!-- Modal Header -->
+            <div
+                class="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-gradient-to-r from-primary-50 to-purple-50 dark:from-primary-900/20 dark:to-purple-900/20">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100"
+                        x-text="modalMode === 'add' ? 'Tambah Materi Baru' : 'Edit Materi'"></h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Buat konten pembelajaran yang menarik</p>
+                </div>
+                <button @click="closeModal()"
+                    class="w-10 h-10 rounded-full bg-white dark:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto flex-1">
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Judul
+                            Materi</label>
+                        <input type="text" x-model="modalForm.title"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all font-medium"
+                            placeholder="Contoh: Pengenalan Hiragana Dasar">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Isi
+                            Konten</label>
+                        <textarea x-model="modalForm.body" rows="8"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all font-medium resize-none"
+                            placeholder="Tuliskan materi pembelajaran di sini..."></textarea>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Gunakan bahasa yang jelas dan mudah
+                            dipahami oleh siswa.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div
+                class="p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex gap-3">
+                <button @click="closeModal()"
+                    class="flex-1 px-4 py-3 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                    Batal
+                </button>
+                <button @click="saveContent()"
+                    class="flex-1 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 text-white px-4 py-3 rounded-xl font-bold shadow-lg shadow-primary-500/25 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Simpan Konten
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Management Modal -->
+    <div x-show="userModalOpen" class="fixed inset-0 z-[70] flex items-center justify-center p-4" x-cloak>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="closeUserModal()"></div>
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden transform transition-all"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100"
+                    x-text="userModalMode === 'add' ? 'Tambah Siswa Baru' : userModalMode === 'edit' ? 'Edit Data Siswa' : 'Detail Siswa'">
+                </h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1"
+                    x-text="userModalMode === 'add' ? 'Tambahkan siswa baru ke sistem' : 'Kelola data siswa'"></p>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto flex-1">
+                <div class="space-y-5">
+                    <!-- Avatar Preview -->
+                    <div class="flex justify-center mb-2">
+                        <div class="relative">
+                            <div
+                                class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center font-bold text-white text-2xl shadow-lg">
+                                <span
+                                    x-text="(userForm.fullName || userForm.username || '?').charAt(0).toUpperCase()"></span>
+                            </div>
+                            <div
+                                class="absolute -bottom-1 -right-1 w-5 h-5 bg-success-400 rounded-full border-2 border-white dark:border-slate-800">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label
+                                class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Nama
+                                Lengkap</label>
+                            <input type="text" x-model="userForm.fullName" :disabled="userModalMode === 'view'"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all font-medium disabled:bg-slate-100 dark:disabled:bg-slate-700 disabled:text-slate-500"
+                                placeholder="Masukkan nama lengkap siswa">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Username</label>
+                            <input type="text" x-model="userForm.username" :disabled="userModalMode === 'view'"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all font-medium disabled:bg-slate-100 dark:disabled:bg-slate-700 disabled:text-slate-500"
+                                placeholder="Masukkan username unik">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Password</label>
+                            <div class="relative">
+                                <input :type="showUserPassword ? 'text' : 'password'" x-model="userForm.password"
+                                    :disabled="userModalMode === 'view'"
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all font-medium font-mono disabled:bg-slate-100 dark:disabled:bg-slate-700 disabled:text-slate-500 pr-12"
+                                    placeholder="Masukkan password">
+                                <button type="button" @click="showUserPassword = !showUserPassword"
+                                    :disabled="userModalMode === 'view'"
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 disabled:opacity-50">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path x-show="!showUserPassword" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path x-show="!showUserPassword" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        <path x-show="showUserPassword" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <p x-show="userModalMode !== 'view'"
+                                class="text-xs text-slate-500 dark:text-slate-400 mt-2">Minimum 6 karakter untuk
+                                keamanan akun</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-slate-200 dark:border-slate-700 flex gap-3">
+                <button @click="closeUserModal()"
+                    class="flex-1 px-4 py-3 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                    Tutup
+                </button>
+                <template x-if="userModalMode !== 'view'">
+                    <button @click="saveUser()"
+                        class="flex-1 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 text-white px-4 py-3 rounded-xl font-bold shadow-lg shadow-primary-500/25 hover:shadow-xl active:scale-95 transition-all">
+                        <span x-text="userModalMode === 'add' ? 'Tambah Siswa' : 'Simpan Perubahan'"></span>
+                    </button>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content View Modal -->
+    <div x-show="viewModalOpen" class="fixed inset-0 z-[90] flex items-center justify-center p-4" x-cloak>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="closeViewModal()"></div>
+        <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-3xl shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden transform transition-all"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+
+            <!-- Modal Header -->
+            <div
+                class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100" x-text="viewContentData.title"></h3>
+                <button @click="closeViewModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-8 overflow-y-auto flex-1 prose dark:prose-invert max-w-none min-h-[300px]">
+                <template x-if="viewContentData.body">
+                    <div class="whitespace-pre-line text-slate-600 dark:text-slate-300 leading-relaxed"
+                        x-text="viewContentData.body"></div>
+                </template>
+                <template x-if="!viewContentData.body">
+                    <div
+                        class="flex flex-col items-center justify-center h-full text-slate-400 dark:text-slate-500 italic pb-8">
+                        <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p>Belum ada konten materi yang tersedia untuk judul ini.</p>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+                <button @click="closeViewModal()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/25 hover:shadow-xl active:scale-95 transition-all">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Soal Management Modal -->
+    <div x-show="soalModalOpen" class="fixed inset-0 z-[80] flex items-center justify-center p-4" x-cloak>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="closeSoalModal()"></div>
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden transform transition-all"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+
+            <!-- Modal Header -->
+            <div
+                class="p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100"
+                    x-text="soalModalMode === 'add' ? 'Buat Soal Baru' : 'Edit Soal'">
+                </h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Tambahkan kuis atau latihan eksternal</p>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto flex-1">
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Nama
+                            Soal</label>
+                        <input type="text" x-model="soalForm.title"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all font-medium"
+                            placeholder="Contoh: Latihan JLPT N5">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Link
+                            Eksternal</label>
+                        <input type="text" x-model="soalForm.link"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all font-medium"
+                            placeholder="../../soal/soal1/index.html">
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Masukkan URL lengkap (https://) atau
+                            relative path (../../soal/...)</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Jumlah
+                            Soal</label>
+                        <input type="number" x-model="soalForm.questions"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all font-medium"
+                            placeholder="10">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Status</label>
+                        <div class="flex gap-2">
+                            <button type="button" @click="soalForm.status = 'publish'"
+                                :class="soalForm.status === 'publish' ? 'bg-success-100 text-success-700 border-success-200 ring-2 ring-success-500 ring-offset-2' : 'bg-slate-100 text-slate-600 border-transparent hover:bg-slate-200'"
+                                class="flex-1 py-3 px-4 rounded-xl font-semibold border transition-all flex items-center justify-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-success-500"></span>
+                                Publish
+                            </button>
+                            <button type="button" @click="soalForm.status = 'draft'"
+                                :class="soalForm.status === 'draft' ? 'bg-slate-200 text-slate-800 border-slate-300 ring-2 ring-slate-500 ring-offset-2' : 'bg-slate-100 text-slate-600 border-transparent hover:bg-slate-200'"
+                                class="flex-1 py-3 px-4 rounded-xl font-semibold border transition-all flex items-center justify-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                                Draft
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-slate-200 dark:border-slate-700 flex gap-3">
+                <button @click="closeSoalModal()"
+                    class="flex-1 px-4 py-3 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                    Batal
+                </button>
+                <button @click="saveSoal()"
+                    class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/25 hover:shadow-xl active:scale-95 transition-all">
+                    Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function adminDashboard() {
+            return {
+                // UI State
+                darkMode: localStorage.getItem('darkMode') === 'true',
+                sidebarOpen: false,
+                currentView: 'dashboard',
+                currentUser: null,
+
+                // Data
+                userList: [],
+                filteredUsers: [],
+                contentList: [],
+                leaderboard: [],
+                contentList: [],
+                leaderboard: [],
+                stats: { totalStudents: 0, totalContent: 0, totalQuizzes: 0 },
+                notifications: [
+                    { type: 'success', icon: '📚', title: 'Materi Baru', message: 'Materi "Hiragana Dasar" telah ditambahkan', time: '5 menit lalu' },
+                    { type: 'warning', icon: '👤', title: 'Siswa Baru', message: 'Budi Santoso baru saja mendaftar', time: '1 jam lalu' },
+                    { type: 'info', icon: '🏆', title: 'Peringkat Update', message: 'Peringkat leaderboard telah diperbarui', time: '2 jam lalu' }
+                ],
+
+                // Forms
+                modalOpen: false,
+                modalMode: 'add',
+                modalForm: { id: null, title: '', body: '' },
+
+                viewModalOpen: false,
+                viewContentData: { title: '', body: '' },
+
+                profileForm: { fullName: '', username: '', password: '' },
+                profileMsg: '',
+                profileMsgType: '',
+                showNewPassword: false,
+
+                // User Management
+                userModalOpen: false,
+                userModalMode: 'view',
+                userForm: { id: null, fullName: '', username: '', password: '' },
+                showPassword: {},
+                showUserPassword: false,
+                // Soal State
+                soalModalOpen: false,
+                soalModalMode: 'add',
+                soalForm: { id: null, title: '', link: '', questions: 0, status: 'draft' },
+                soalList: [],
+
+                // Navigation
+                navItems: [
+                    { id: 'dashboard', label: 'Dashboard', icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>' },
+                    { id: 'siswa', label: 'Siswa', icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>' },
+                    { id: 'questions', label: 'Materi', icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>' },
+                    { id: 'soal', label: 'Soal', icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>' },
+                    { id: 'leaderboard', label: 'Peringkat', icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>' },
+                    { id: 'report', label: 'Laporan', icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>' }
+                ],
+
+                async initDashboard() {
+                    this.currentUser = await dbRef.getCurrentUser();
+
+                    if (!this.currentUser) {
+                        alert("Silakan login ulang");
+                        window.location.href = '../../auth.html';
+                        return;
+                    }
+
+                    const role = (this.currentUser.role || '').toLowerCase();
+                    if (role !== 'admin') {
+                        alert("Akses ditolak");
+                        window.location.href = '../../auth.html';
+                        return;
+                    }
+
+                    console.log("LOGIN OK:", this.currentUser);
+
+                    this.profileForm.fullName = this.currentUser.fullName || '';
+                    this.profileForm.username = this.currentUser.username;
+
+                    if (this.darkMode) {
+                        document.documentElement.classList.add('dark');
+                    }
+
+                    await this.refreshData();
+
+                    // Auto-refresh data every 60 seconds
+                    setInterval(() => this.refreshData(), 60000);
+                },
+
+                async refreshData() {
+                    // Fetch Users
+                    try {
+                        const users = await dbRef.getAllUsers(); // Fetches role='user' only
+                        this.userList = users;
+                        this.filteredUsers = [...users];
+                    } catch (e) { console.error(e); }
+
+                    // Fetch Content
+                    try {
+                        const contents = await dbRef.getContentList();
+                        this.contentList = contents.map(c => ({
+                            ...c,
+                            date: new Date(c.date || Date.now()).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                            })
+                        }));
+                    } catch (e) { console.error("Error fetching content:", e); }
+
+                    // Fetch Quizzes
+                    try {
+                        this.soalList = await dbRef.getQuizList();
+                    } catch (e) { console.error("Error fetching quizzes:", e); }
+
+                    // Update Stats
+                    this.stats.totalStudents = this.userList.length;
+                    this.stats.totalContent = this.contentList.length;
+                    this.stats.totalQuizzes = this.soalList.length;
+                    // Calculate active students (e.g. completed at least 1 quiz)
+                    this.stats.siswaAktif = this.userList.filter(u => (u.completedQuizzes || 0) > 0).length;
+
+                    // Leaderboard
+                    this.leaderboard = [...this.userList]
+                        .sort((a, b) => (b.score || 0) - (a.score || 0))
+                        .map(u => ({
+                            ...u,
+                            avgScore: (u.completedQuizzes > 0) ? Math.round((u.score || 0) / u.completedQuizzes) : 0
+                        }))
+                        .slice(0, 5);
+                },
+
+
+                searchUsers() {
+                    if (!this.searchQuery.trim()) {
+                        this.filteredUsers = [...this.userList];
+                        return;
+                    }
+
+                    const query = this.searchQuery.toLowerCase();
+                    this.filteredUsers = this.userList.filter(user =>
+                        (user.fullName && user.fullName.toLowerCase().includes(query)) ||
+                        user.username.toLowerCase().includes(query)
+                    );
+                },
+
+                // User Actions
+                addUser() {
+                    this.userModalMode = 'add';
+                    this.userForm = { id: null, fullName: '', username: '', password: '' };
+                    this.userModalOpen = true;
+                },
+
+                viewUser(id) {
+                    const user = this.userList.find(u => u.id === id);
+                    if (user) {
+                        this.userForm = { ...user };
+                        this.userModalMode = 'view';
+                        this.userModalOpen = true;
+                    }
+                },
+
+                editUser(id) {
+                    const user = this.userList.find(u => u.id === id);
+                    if (user) {
+                        this.userForm = { ...user };
+                        this.userModalMode = 'edit';
+                        this.userModalOpen = true;
+                    }
+                },
+
+                closeUserModal() {
+                    this.userModalOpen = false;
+                    this.userForm = { id: null, fullName: '', username: '', password: '' };
+                    this.showUserPassword = false;
+                },
+
+                saveUser() {
+                    if (this.userModalMode === 'add') {
+                        // Generate a simple ID for new user
+                        const newUser = {
+                            ...this.userForm,
+                            id: 'user_' + Date.now(),
+                            role: 'user',
+                            createdAt: new Date().toISOString()
+                        };
+
+                        // Add user to database
+                        const db = dbRef.getDB();
+                        db.users.push(newUser);
+                        dbRef.saveDB(db);
+
+                        // Show success notification
+                        this.showNotification('success', 'Siswa berhasil ditambahkan');
+                    } else {
+                        // Update existing user
+                        const res = dbRef.updateUser(this.userForm.id, this.userForm);
+                        if (res.success) {
+                            this.showNotification('success', 'Data siswa berhasil diperbarui');
+                        } else {
+                            this.showNotification('error', res.message);
+                            return;
+                        }
+                    }
+
+                    this.refreshData();
+                    this.closeUserModal();
+                },
+
+                async deleteUser(id) {
+                    if (confirm('Apakah Anda yakin ingin menghapus siswa ini?')) {
+                        await dbRef.deleteUser(id);
+                        await this.refreshData();
+                        this.showNotification('success', 'Siswa berhasil dihapus');
+                    }
+                },
+
+                togglePassword(id) {
+                    this.showPassword[id] = !this.showPassword[id];
+                },
+
+                // Content Actions
+                openModal() {
+                    this.modalMode = 'add';
+                    this.modalForm = { id: null, title: '', body: '' };
+                    this.modalOpen = true;
+                },
+
+                editItem(id) {
+                    const item = this.contentList.find(c => c.id === id);
+                    if (item) {
+                        this.modalMode = 'edit';
+                        this.modalForm = { ...item };
+                        this.modalOpen = true;
+                    }
+                },
+
+                closeModal() {
+                    this.modalOpen = false;
+                },
+
+                async saveContent() {
+                    if (this.modalMode === 'add') {
+                        await dbRef.addContent(this.modalForm.title, this.modalForm.body);
+                        this.showNotification('success', 'Materi berhasil ditambahkan');
+                    } else {
+                        await dbRef.updateContent(this.modalForm.id, this.modalForm.title, this.modalForm.body);
+                        this.showNotification('success', 'Materi berhasil diperbarui');
+                    }
+                    this.closeModal();
+                    await this.refreshData();
+                },
+
+                viewContent(id) {
+                    const item = this.contentList.find(c => c.id === id);
+                    if (item) {
+                        this.viewContentData = { ...item };
+                        this.viewModalOpen = true;
+                    }
+                },
+
+                closeViewModal() {
+                    this.viewModalOpen = false;
+                },
+
+                async deleteContent(id) {
+                    if (confirm('Hapus materi ini?')) {
+                        await dbRef.deleteContent(id);
+                        await this.refreshData();
+                        this.showNotification('success', 'Materi berhasil dihapus');
+                    }
+                },
+
+                // Profile Actions
+                async updateProfile() {
+                    const data = {
+                        fullName: this.profileForm.fullName,
+                        username: this.profileForm.username
+                    };
+
+                    if (this.profileForm.password) {
+                        if (this.profileForm.password.length < 6) {
+                            this.profileMsg = 'Password minimal 6 karakter';
+                            this.profileMsgType = 'error';
+                            return;
+                        }
+                        // Warn inability to update password if needed, or handle if logged in user is target
+                        // For now we skip password update in storage.js and just warn here?
+                        // Or just let it fail silently regarding password.
+                        // Ideally we change auth password if currentUser == targetUser.
+                        // But dashboard Logic assumes we are Admin updating OUR profile?
+                        // Yes, updateProfile updates currentUser.
+                        // Accessing auth.currentUser.updatePassword() is possible!
+                        // But let's stick to storage.js facade.
+                    }
+
+                    const res = await dbRef.updateUser(this.currentUser.id, data);
+
+                    if (res.success) {
+                        // If we want to support password update for SELF:
+                        if (this.profileForm.password) {
+                            try {
+                                const user = firebase.auth().currentUser;
+                                await user.updatePassword(this.profileForm.password);
+                            } catch (e) { console.error("Pwd update failed", e); }
+                        }
+
+                        this.currentUser = res.user;
+                        this.profileMsg = 'Profil berhasil diperbarui!';
+                        this.profileMsgType = 'success';
+                        setTimeout(() => this.profileMsg = '', 3000);
+                        this.showNotification('success', 'Profil berhasil diperbarui');
+                    } else {
+                        this.profileMsg = res.message;
+                        this.profileMsgType = 'error';
+                    }
+                },
+
+                // Utility Functions
+                showNotification(type, message) {
+                    // Create notification element
+                    const notification = document.createElement('div');
+                    notification.className = `fixed top-4 right-4 z-[100] px-6 py-4 rounded-xl shadow-2xl font-medium text-white transform transition-all duration-300 translate-x-0 opacity-100 ${type === 'success' ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
+                        type === 'error' ? 'bg-gradient-to-r from-red-500 to-pink-500' :
+                            'bg-gradient-to-r from-blue-500 to-cyan-500'
+                        }`;
+                    notification.textContent = message;
+
+                    document.body.appendChild(notification);
+
+                    // Remove after 3 seconds
+                    setTimeout(() => {
+                        notification.style.transform = 'translateX(100%)';
+                        notification.style.opacity = '0';
+                        setTimeout(() => notification.remove(), 300);
+                    }, 3000);
+                },
+
+                exportLeaderboard() {
+                    const data = this.leaderboard.map((item, index) => ({
+                        Rank: index + 1,
+                        Name: item.name,
+                        Score: item.score
+                    }));
+
+                    const csv = 'data:text/csv;charset=utf-8,' +
+                        'Rank,Nama,Skor\n' +
+                        data.map(row => `${row.Rank},${row.Name},${row.Score}`).join('\n');
+
+                    const encodedUri = encodeURI(csv);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', encodedUri);
+                    link.setAttribute('download', 'leaderboard_dkotoba.csv');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    this.showNotification('success', 'Data berhasil diexport');
+                },
+
+                // Soal Functions
+                openSoalModal() {
+                    this.soalModalMode = 'add';
+                    this.soalForm = { id: null, title: '', link: '', questions: 0, status: 'draft' };
+                    this.soalModalOpen = true;
+                },
+
+                editSoal(id) {
+                    const quiz = this.soalList.find(q => q.id === id);
+                    if (quiz) {
+                        this.soalForm = { ...quiz };
+                        this.soalModalMode = 'edit';
+                        this.soalModalOpen = true;
+                    }
+                },
+
+                async deleteSoal(id) {
+                    if (confirm('Apakah Anda yakin ingin menghapus soal ini?')) {
+                        await dbRef.deleteQuiz(id);
+                        await this.refreshData();
+                        this.showNotification('success', 'Soal berhasil dihapus');
+                    }
+                },
+
+                closeSoalModal() {
+                    this.soalModalOpen = false;
+                },
+
+                async saveSoal() {
+                    if (!this.soalForm.title || !this.soalForm.link) {
+                        this.showNotification('error', 'Nama soal dan link wajib diisi');
+                        return;
+                    }
+
+                    if (this.soalModalMode === 'add') {
+                        await dbRef.addQuiz(this.soalForm.title, this.soalForm.link, this.soalForm.questions, this.soalForm.status);
+                        this.showNotification('success', 'Soal berhasil ditambahkan');
+                    } else {
+                        await dbRef.updateQuiz(this.soalForm.id, this.soalForm.title, this.soalForm.link, this.soalForm.questions, this.soalForm.status);
+                        this.showNotification('success', 'Soal berhasil diperbarui');
+                    }
+
+                    this.closeSoalModal();
+                    await this.refreshData();
+                },
+
+                async logout() {
+                    await dbRef.logout();
+                    window.location.href = '../../auth.html';
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

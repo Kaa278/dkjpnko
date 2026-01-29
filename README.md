@@ -1,6 +1,5 @@
 <div align="center">
 
-![DKotoba Banner](assets/dkotoba_banner.png)
 
 # 🏯 DKotoba (DKotoba Quiz)
 ### Platform Pembelajaran Bahasa Jepang Interaktif

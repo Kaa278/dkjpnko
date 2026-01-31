@@ -195,6 +195,7 @@
         .line-clamp {
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -243,6 +244,24 @@
             100% {
                 background-position: 0% 50%;
             }
+        }
+    </style>
+    <!-- flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
+
+    <style>
+        .flatpickr-calendar {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 1rem !important;
+        }
+
+        .flatpickr-day.selected {
+            background: #2563eb !important;
+            border-color: #2563eb !important;
         }
     </style>
 </head>
@@ -485,9 +504,11 @@
                 </div>
             </header>
 
-            <!-- Main Content -->
-            <main class="flex-1 overflow-y-auto p-6 md:p-8 relative scrollbar-thin">
-                <div class="max-w-7xl mx-auto">
+            <!-- Main Content AREA -->
+            <main class="flex-1 p-6 md:p-8 relative"
+                :class="['siswa', 'leaderboard'].includes(currentView) ? 'flex flex-col min-h-0 overflow-hidden' : 'overflow-y-auto scrollbar-thin'">
+                <div class="max-w-7xl mx-auto w-full"
+                    :class="['siswa', 'leaderboard'].includes(currentView) ? 'flex-1 flex flex-col min-h-0' : ''">
                     <!-- Animated Background Elements -->
                     <div class="fixed inset-0 -z-10 overflow-hidden">
                         <div
@@ -498,10 +519,10 @@
                     </div>
 
                     <!-- VIEW: DASHBOARD -->
-                    <div x-show="currentView === 'dashboard'" x-transition.opacity class="space-y-8 animate-fade-in">
+                    <div x-show="currentView === 'dashboard'" x-transition.opacity class="space-y-6 animate-fade-in">
                         <!-- Welcome Banner -->
                         <div
-                            class="bg-gradient-to-r from-blue-700 via-blue-600 to-slate-500 rounded-3xl p-8 text-white shadow-xl shadow-blue-500/10">
+                            class="bg-gradient-to-r from-blue-700 via-blue-600 to-slate-500 rounded-3xl p-6 text-white shadow-xl shadow-blue-500/10">
                             <div class="flex justify-between items-start">
                                 <div>
                                     <h1 class="text-3xl font-black mb-2">Selamat datang, <span
@@ -520,7 +541,7 @@
                         </div>
 
                         <!-- Stats Grid -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <!-- Siswa Card -->
                             <div class="glass-panel rounded-2xl p-6 card-hover group">
                                 <div class="flex justify-between items-start mb-4">
@@ -607,17 +628,17 @@
                         </div>
 
                         <!-- Charts & Leaderboard Section -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <!-- Leaderboard -->
                             <div class="glass-panel rounded-2xl p-6">
                                 <div class="flex justify-between items-center mb-6">
-                                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">🏆 Top 5 Siswa</h3>
+                                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">🏆 Top 3 Siswa</h3>
                                     <button @click="currentView = 'leaderboard'"
                                         class="text-sm text-primary-600 dark:text-primary-400 font-semibold hover:underline">Lihat
                                         Semua</button>
                                 </div>
                                 <div class="space-y-4">
-                                    <template x-for="(item, index) in leaderboard" :key="index">
+                                    <template x-for="(item, index) in leaderboard.slice(0, 3)" :key="index">
                                         <div
                                             class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
                                             <div class="flex items-center gap-3">
@@ -670,28 +691,42 @@
                     </div>
 
                     <!-- VIEW: SISWA -->
-                    <div x-show="currentView === 'siswa'" x-cloak class="space-y-6 animate-fade-in">
-                        <div class="flex justify-between items-center">
+                    <div x-show="currentView === 'siswa'" x-cloak
+                        class="flex-1 flex flex-col min-h-0 space-y-6 animate-fade-in overflow-hidden">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
                                 <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100">👥 Manajemen Siswa
                                 </h3>
                                 <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Kelola akun siswa yang
                                     terdaftar di platform</p>
                             </div>
-                            <button @click="addUser()"
-                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:shadow-xl active:scale-95 transition-all flex items-center gap-2 group">
-                                <svg class="w-5 h-5 group-hover:rotate-90 transition-transform" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 4v16m8-8H4" />
-                                </svg>
-                                Tambah Siswa
-                            </button>
+
+                            <div class="flex items-center gap-4 w-full md:w-auto">
+                                <!-- Total Siswa Card -->
+                                <div
+                                    class="bg-white dark:bg-slate-800 px-6 py-2 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center min-w-[120px]">
+                                    <p
+                                        class="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold mb-0.5">
+                                        Total Siswa</p>
+                                    <p class="text-2xl font-black text-primary-600 dark:text-primary-400"
+                                        x-text="userList.length"></p>
+                                </div>
+
+                                <button @click="addUser()"
+                                    class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
+                                    <svg class="w-5 h-5 group-hover:rotate-90 transition-transform" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Tambah Siswa
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- Search Bar -->
+                        <!-- Search & Filter Bar -->
                         <div class="glass-panel rounded-2xl p-4">
-                            <div class="flex gap-4">
+                            <div class="flex flex-col md:flex-row gap-4">
                                 <div class="flex-1 relative">
                                     <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400"
                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -702,22 +737,35 @@
                                         placeholder="Cari siswa berdasarkan nama atau username..."
                                         class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all">
                                 </div>
-                                <button @click="refreshData()"
-                                    class="px-4 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl transition-colors">
-                                    <svg class="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
-                                </button>
+                                <div class="flex gap-2">
+                                    <select x-model="sortKey" @change="sortUsers()"
+                                        class="px-4 py-3 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-primary-500 transition-all">
+                                        <option value="fullName">Urut: Nama</option>
+                                        <option value="username">Urut: Username</option>
+                                    </select>
+                                    <select x-model="sortOrder" @change="sortUsers()"
+                                        class="px-4 py-3 bg-slate-100 dark:bg-slate-700 border-transparent rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-primary-500 transition-all">
+                                        <option value="asc">A-Z (Naik)</option>
+                                        <option value="desc">Z-A (Turun)</option>
+                                    </select>
+                                    <button @click="refreshData(true)"
+                                        class="px-4 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl transition-colors">
+                                        <svg class="w-5 h-5 text-slate-600 dark:text-slate-300"
+                                            :class="{ 'animate-spin': refreshing }" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Students Table -->
-                        <div class="glass-panel rounded-2xl overflow-hidden">
-                            <div class="overflow-x-auto">
+                        <!-- Students Table Container -->
+                        <div class="glass-panel rounded-2xl overflow-hidden flex-1 flex flex-col min-h-0">
+                            <div class="overflow-x-auto overflow-y-auto flex-1 scrollbar-thin">
                                 <table class="w-full">
-                                    <thead class="bg-slate-50 dark:bg-slate-700/50">
+                                    <thead class="sticky top-0 bg-slate-50 dark:bg-slate-700/95 z-10 shadow-sm">
                                         <tr>
                                             <th
                                                 class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -775,8 +823,8 @@
                                                     <div class="flex items-center gap-2">
                                                         <span
                                                             class="font-mono text-sm text-slate-600 dark:text-slate-300"
-                                                            x-text="showPassword[user.id] ? user.password : '••••••••'"></span>
-                                                        <button @click="togglePassword(user.id)"
+                                                            x-text="!user.password ? 'Belum Set' : (showPassword[user.id] ? user.password : '••••••••')"></span>
+                                                        <button x-show="user.password" @click="togglePassword(user.id)"
                                                             class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-xs font-medium">
                                                             <span
                                                                 x-text="showPassword[user.id] ? 'Sembunyikan' : 'Tampilkan'"></span>
@@ -784,8 +832,15 @@
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4">
-                                                    <span
-                                                        class="px-3 py-1 rounded-full text-xs font-bold bg-success-50 dark:bg-success-900/30 text-success-600 dark:text-success-400">Aktif</span>
+                                                    <template x-if="user.password">
+                                                        <span
+                                                            class="px-3 py-1 rounded-full text-xs font-bold bg-success-50 dark:bg-success-900/30 text-success-600 dark:text-success-400">Aktif</span>
+                                                    </template>
+                                                    <template x-if="!user.password">
+                                                        <span
+                                                            class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">Belum
+                                                            Aktivasi</span>
+                                                    </template>
                                                 </td>
                                                 <td class="px-6 py-4 text-right">
                                                     <div class="flex items-center justify-end gap-2">
@@ -985,6 +1040,9 @@
                                                 Status</th>
                                             <th
                                                 class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Deadline</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                 Link</th>
                                             <th
                                                 class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -1010,7 +1068,12 @@
                                                         x-text="quiz.status"></span>
                                                 </td>
                                                 <td class="px-6 py-4">
-                                                    <a :href="quiz.link" target="_blank"
+                                                    <span class="text-sm font-medium"
+                                                        :class="new Date(quiz.deadline) < new Date() ? 'text-red-500 font-bold' : 'text-slate-600 dark:text-slate-300'"
+                                                        x-text="formatDateSimple(quiz.deadline)"></span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <a :href="resolveQuizLink(quiz.link)" target="_blank"
                                                         class="text-primary-600 dark:text-primary-400 hover:underline text-sm truncate max-w-[200px] block"
                                                         x-text="quiz.link"></a>
                                                 </td>
@@ -1065,7 +1128,8 @@
                     </div>
 
                     <!-- VIEW: LEADERBOARD -->
-                    <div x-show="currentView === 'leaderboard'" x-cloak class="space-y-6 animate-fade-in">
+                    <div x-show="currentView === 'leaderboard'" x-cloak
+                        class="flex-1 flex flex-col min-h-0 space-y-6 animate-fade-in overflow-hidden">
                         <div class="flex justify-between items-center">
                             <div>
                                 <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100">🏆 Peringkat Siswa
@@ -1073,14 +1137,32 @@
                                 <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Ranking berdasarkan performa
                                     kuis tertinggi</p>
                             </div>
-                            <button @click="exportLeaderboard()"
-                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:shadow-xl active:scale-95 transition-all flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                                </svg>
-                                Export Data
-                            </button>
+                            <div class="flex items-center gap-3">
+                                <!-- Quiz Filter -->
+                                <select x-model="leaderboardQuizFilter" @change="updateLeaderboard()"
+                                    class="px-4 py-2.5 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-primary-500 transition-all shadow-sm">
+                                    <option value="all">Semua Soal</option>
+                                    <template x-for="q in soalList" :key="q.id">
+                                        <option :value="q.id" x-text="q.title"></option>
+                                    </template>
+                                </select>
+                                <!-- Sort Filter -->
+                                <select x-model="leaderboardSortKey" @change="updateLeaderboard()"
+                                    class="px-4 py-2.5 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-primary-500 transition-all shadow-sm">
+                                    <option value="score">Urut: Skor</option>
+                                    <option value="count">Urut: Jumlah Kuis</option>
+                                    <option value="fastest">Urut: Tercepat</option>
+                                    <option value="slowest">Urut: Terlama</option>
+                                </select>
+                                <button @click="exportLeaderboard()"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:shadow-xl active:scale-95 transition-all flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                    </svg>
+                                    Export
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Leaderboard Cards -->
@@ -1130,10 +1212,10 @@
                         </div>
 
                         <!-- Full Leaderboard Table -->
-                        <div class="glass-panel rounded-2xl overflow-hidden">
-                            <div class="overflow-x-auto">
+                        <div class="glass-panel rounded-2xl flex-1 min-h-0 flex flex-col overflow-hidden">
+                            <div class="flex-1 min-h-0 overflow-y-auto scrollbar-thin">
                                 <table class="w-full">
-                                    <thead class="bg-slate-50 dark:bg-slate-700/50">
+                                    <thead class="sticky top-0 bg-slate-50 dark:bg-slate-700/95 z-10 shadow-sm">
                                         <tr>
                                             <th
                                                 class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -1150,6 +1232,9 @@
                                             <th
                                                 class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                 Rata-rata</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                Waktu</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
@@ -1178,12 +1263,12 @@
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     <span class="text-lg font-black text-slate-900 dark:text-slate-100"
-                                                        x-text="item.score"></span>
+                                                        x-text="item.displayScore"></span>
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     <span
                                                         class="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
-                                                        x-text="(item.completedQuizzes || 0) + ' Kuis'"></span>
+                                                        x-text="(item.displayCount || 0) + ' Kuis'"></span>
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     <div class="flex items-center gap-2">
@@ -1195,6 +1280,15 @@
                                                             <div class="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full"
                                                                 :style="'width: ' + (item.avgScore || 0) + '%'"></div>
                                                         </div>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <div class="flex flex-col">
+                                                        <span
+                                                            class="text-sm font-bold text-slate-700 dark:text-slate-300"
+                                                            x-text="item.duration || '-'"></span>
+                                                        <span class="text-[10px] text-slate-400 dark:text-slate-500"
+                                                            x-text="item.lastDate || '-'"></span>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1682,6 +1776,43 @@
                             placeholder="10">
                     </div>
                     <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Batas Waktu
+                            (Deadline)</label>
+                        <div class="relative group">
+                            <input type="text" x-model="soalForm.deadline" x-init="
+                                    $nextTick(() => {
+                                        const fp = flatpickr($el, { 
+                                            enableTime: true, 
+                                            dateFormat: 'Y-m-d H:i', 
+                                            time_24hr: true,
+                                            locale: 'id',
+                                            disableMobile: true,
+                                            altInput: true,
+                                            altFormat: 'j F Y, H:i',
+                                            placeholder: 'Pilih tanggal & waktu...',
+                                            allowInput: true,
+                                            onChange: (selectedDates, dateStr) => { soalForm.deadline = dateStr; }
+                                        });
+                                        $watch('soalForm.deadline', value => {
+                                            if (value !== fp.currentDateStr) {
+                                                fp.setDate(value || '', false);
+                                            }
+                                        });
+                                    });
+                                "
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all font-medium pr-10"
+                                placeholder="Pilih tanggal & waktu...">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Siswa tidak bisa mengerjakan kuis
+                            setelah waktu ini</p>
+                    </div>
+                    <div>
                         <label
                             class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Status</label>
                         <div class="flex gap-2">
@@ -1730,8 +1861,8 @@
                 filteredUsers: [],
                 contentList: [],
                 leaderboard: [],
-                contentList: [],
-                leaderboard: [],
+                leaderboardQuizFilter: 'all',
+                leaderboardSortKey: 'score',
                 stats: { totalStudents: 0, totalContent: 0, totalQuizzes: 0 },
                 notifications: [
                     { type: 'success', icon: '📚', title: 'Materi Baru', message: 'Materi "Hiragana Dasar" telah ditambahkan', time: '5 menit lalu' },
@@ -1758,10 +1889,14 @@
                 userForm: { id: null, fullName: '', username: '', password: '' },
                 showPassword: {},
                 showUserPassword: false,
+                searchQuery: '',
+                sortKey: 'fullName',
+                sortOrder: 'asc',
+                refreshing: false,
                 // Soal State
                 soalModalOpen: false,
                 soalModalMode: 'add',
-                soalForm: { id: null, title: '', link: '', questions: 0, status: 'draft' },
+                soalForm: { id: null, title: '', link: '', questions: 0, status: 'draft', deadline: '' },
                 soalList: [],
 
                 // Navigation
@@ -1805,7 +1940,8 @@
                     setInterval(() => this.refreshData(), 60000);
                 },
 
-                async refreshData() {
+                async refreshData(manual = false) {
+                    if (manual) this.refreshing = true;
                     // Fetch Users
                     try {
                         const users = await dbRef.getAllUsers(); // Fetches role='user' only
@@ -1838,20 +1974,132 @@
                     // Calculate active students (e.g. completed at least 1 quiz)
                     this.stats.siswaAktif = this.userList.filter(u => (u.completedQuizzes || 0) > 0).length;
 
-                    // Leaderboard
-                    this.leaderboard = [...this.userList]
-                        .sort((a, b) => (b.score || 0) - (a.score || 0))
-                        .map(u => ({
-                            ...u,
-                            avgScore: (u.completedQuizzes > 0) ? Math.round((u.score || 0) / u.completedQuizzes) : 0
-                        }))
-                        .slice(0, 5);
+                    await this.updateLeaderboard();
+
+                    this.sortUsers();
+                    if (manual) {
+                        setTimeout(() => this.refreshing = false, 500);
+                        this.showNotification('success', 'Data berhasil diperbarui');
+                    }
                 },
 
+                async updateLeaderboard() {
+                    let list = [...this.userList];
+                    const quizFilter = this.leaderboardQuizFilter;
+                    const sortKey = this.leaderboardSortKey;
+
+                    // Filter Logic
+                    if (quizFilter === 'all') {
+                        list = list.filter(u => (u.completedQuizzes || 0) > 0);
+                    } else {
+                        // Filter users who have taken specific quiz
+                        list = list.filter(u => u.quizHistoryDetails && u.quizHistoryDetails[quizFilter]);
+                    }
+
+                    // Map Score, Dates, and Duration
+                    list = list.map(u => {
+                        let score = u.score || 0;
+                        let count = u.completedQuizzes || 0;
+                        let lastDateStr = '-';
+                        let durationStr = '-';
+                        let rawDuration = Infinity; // For sorting purposes
+
+                        if (quizFilter !== 'all') {
+                            const detail = u.quizHistoryDetails[quizFilter];
+                            score = detail.score || 0;
+                            count = 1; // For specific quiz comparison
+                            lastDateStr = detail.date ? this.formatDateSimple(detail.date) : '-';
+                            durationStr = detail.duration ? this.formatDuration(detail.duration) : '-';
+                            rawDuration = detail.duration || Infinity;
+                        } else {
+                            // Overall latest date and combined duration
+                            if (u.quizHistoryDetails) {
+                                const historyValues = Object.values(u.quizHistoryDetails);
+                                const dates = historyValues.map(d => new Date(d.date));
+                                if (dates.length > 0) {
+                                    const latest = new Date(Math.max(...dates));
+                                    lastDateStr = this.formatDateSimple(latest.toISOString());
+                                }
+                                // Latest duration for 'all'
+                                const latestEntry = historyValues.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+                                durationStr = (latestEntry && latestEntry.duration) ? this.formatDuration(latestEntry.duration) : '-';
+                                rawDuration = (latestEntry && latestEntry.duration) ? latestEntry.duration : Infinity;
+                            }
+                        }
+
+                        return {
+                            ...u,
+                            displayScore: score,
+                            displayCount: count,
+                            lastDate: lastDateStr,
+                            duration: durationStr,
+                            rawDuration: rawDuration,
+                            avgScore: (count > 0) ? Math.round(score / count) : 0
+                        };
+                    });
+
+                    // Sort Logic
+                    if (sortKey === 'score') {
+                        list.sort((a, b) => b.displayScore - a.displayScore);
+                    } else if (sortKey === 'count') {
+                        list.sort((a, b) => (b.completedQuizzes || 0) - (a.completedQuizzes || 0));
+                    } else if (sortKey === 'fastest') {
+                        list.sort((a, b) => a.rawDuration - b.rawDuration);
+                    } else if (sortKey === 'slowest') {
+                        list.sort((a, b) => {
+                            // Put Infinity (no duration) at the end even in slowest? 
+                            // Usually, "slowest" means max seconds.
+                            const da = a.rawDuration === Infinity ? -1 : a.rawDuration;
+                            const db = b.rawDuration === Infinity ? -1 : b.rawDuration;
+                            return db - da;
+                        });
+                    }
+
+                    this.leaderboard = list;
+                },
+
+                formatDuration(seconds) {
+                    if (!seconds) return '-';
+                    if (seconds < 60) return seconds + 'd';
+                    const m = Math.floor(seconds / 60);
+                    const s = seconds % 60;
+                    return m + 'm ' + s + 'd';
+                },
+
+                formatDateSimple(isoString) {
+                    if (!isoString) return '-';
+                    try {
+                        const d = new Date(isoString);
+                        return d.toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                    } catch (e) { return '-'; }
+                },
+
+                sortUsers() {
+                    const key = this.sortKey;
+                    const order = this.sortOrder === 'asc' ? 1 : -1;
+
+                    this.filteredUsers.sort((a, b) => {
+                        let valA = a[key] || '';
+                        let valB = b[key] || '';
+
+                        if (typeof valA === 'string') valA = valA.toLowerCase();
+                        if (typeof valB === 'string') valB = valB.toLowerCase();
+
+                        if (valA < valB) return -1 * order;
+                        if (valA > valB) return 1 * order;
+                        return 0;
+                    });
+                },
 
                 searchUsers() {
                     if (!this.searchQuery.trim()) {
                         this.filteredUsers = [...this.userList];
+                        this.sortUsers();
                         return;
                     }
 
@@ -1860,6 +2108,7 @@
                         (user.fullName && user.fullName.toLowerCase().includes(query)) ||
                         user.username.toLowerCase().includes(query)
                     );
+                    this.sortUsers();
                 },
 
                 // User Actions
@@ -1893,36 +2142,38 @@
                     this.showUserPassword = false;
                 },
 
-                saveUser() {
-                    if (this.userModalMode === 'add') {
-                        // Generate a simple ID for new user
-                        const newUser = {
-                            ...this.userForm,
-                            id: 'user_' + Date.now(),
-                            role: 'user',
-                            createdAt: new Date().toISOString()
-                        };
+                async saveUser() {
+                    try {
+                        if (this.userModalMode === 'add') {
+                            const res = await dbRef.register(
+                                this.userForm.username,
+                                this.userForm.password,
+                                this.userForm.fullName
+                            );
 
-                        // Add user to database
-                        const db = dbRef.getDB();
-                        db.users.push(newUser);
-                        dbRef.saveDB(db);
-
-                        // Show success notification
-                        this.showNotification('success', 'Siswa berhasil ditambahkan');
-                    } else {
-                        // Update existing user
-                        const res = dbRef.updateUser(this.userForm.id, this.userForm);
-                        if (res.success) {
-                            this.showNotification('success', 'Data siswa berhasil diperbarui');
+                            if (res.success) {
+                                this.showNotification('success', 'Siswa berhasil ditambahkan');
+                            } else {
+                                this.showNotification('error', res.message);
+                                return;
+                            }
                         } else {
-                            this.showNotification('error', res.message);
-                            return;
+                            // Update existing user
+                            const res = await dbRef.updateUser(this.userForm.id, this.userForm);
+                            if (res.success) {
+                                this.showNotification('success', 'Data siswa berhasil diperbarui');
+                            } else {
+                                this.showNotification('error', res.message);
+                                return;
+                            }
                         }
-                    }
 
-                    this.refreshData();
-                    this.closeUserModal();
+                        await this.refreshData();
+                        this.closeUserModal();
+                    } catch (e) {
+                        console.error(e);
+                        this.showNotification('error', 'Gagal menyimpan data');
+                    }
                 },
 
                 async deleteUser(id) {
@@ -2079,7 +2330,7 @@
                 // Soal Functions
                 openSoalModal() {
                     this.soalModalMode = 'add';
-                    this.soalForm = { id: null, title: '', link: '', questions: 0, status: 'draft' };
+                    this.soalForm = { id: null, title: '', link: '', questions: 0, status: 'draft', deadline: '' };
                     this.soalModalOpen = true;
                 },
 
@@ -2111,10 +2362,23 @@
                     }
 
                     if (this.soalModalMode === 'add') {
-                        await dbRef.addQuiz(this.soalForm.title, this.soalForm.link, this.soalForm.questions, this.soalForm.status);
+                        await dbRef.addQuiz(
+                            this.soalForm.title,
+                            this.soalForm.link,
+                            this.soalForm.questions,
+                            this.soalForm.status,
+                            this.soalForm.deadline
+                        );
                         this.showNotification('success', 'Soal berhasil ditambahkan');
                     } else {
-                        await dbRef.updateQuiz(this.soalForm.id, this.soalForm.title, this.soalForm.link, this.soalForm.questions, this.soalForm.status);
+                        await dbRef.updateQuiz(
+                            this.soalForm.id,
+                            this.soalForm.title,
+                            this.soalForm.link,
+                            this.soalForm.questions,
+                            this.soalForm.status,
+                            this.soalForm.deadline
+                        );
                         this.showNotification('success', 'Soal berhasil diperbarui');
                     }
 
@@ -2125,6 +2389,12 @@
                 async logout() {
                     await dbRef.logout();
                     window.location.href = '../../auth.html';
+                },
+
+                resolveQuizLink(link) {
+                    if (!link) return '#';
+                    if (link.startsWith('http') || link.startsWith('/') || link.startsWith('../../')) return link;
+                    return '../../' + link;
                 }
             }
         }

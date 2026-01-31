@@ -316,6 +316,13 @@
                                     }
                                 }, 1000);
 
+                            } else if (res.needActivation) {
+                                // 🔴 PHASE 4: Handle Activation
+                                this.successMsg = 'Akun lama terdeteksi! Mengalihkan ke aktivasi...';
+                                localStorage.setItem('activate_uid', res.userId);
+                                setTimeout(() => {
+                                    window.location.href = 'activate.html';
+                                }, 1500);
                             } else {
                                 this.errorMsg = res.message;
                                 this.successMsg = '';

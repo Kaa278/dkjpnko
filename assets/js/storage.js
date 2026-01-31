@@ -23,7 +23,7 @@ const USERS_COLLECTION = 'users';
 const CONTENT_COLLECTION = 'content';
 const QUIZZES_COLLECTION = 'quizzes';
 
-// Utility to create email from username
+// Utility to create email from username (for Admin accounts only)
 const getEmail = (username) => `${username.toLowerCase()}@dkotoba.app`;
 
 window.dbRef = null; // Global reference for legacy compatibility
@@ -36,32 +36,32 @@ class StorageManager {
 
     // --- Helpers ---
     async getCurrentUser() {
+        // 1. Check Firebase Auth (for Admin)
         return new Promise((resolve) => {
             const unsubscribe = auth.onAuthStateChanged(async (user) => {
-                console.log("storage.js: Auth state changed:", user);
                 if (user) {
-                    // Fetch full profile from Firestore
-                    console.log("storage.js: Fetching profile for uid:", user.uid);
-                    const docRef = firestore.collection(USERS_COLLECTION).doc(user.uid);
-                    try {
-                        const doc = await docRef.get();
-                        if (doc.exists) {
-                            console.log("storage.js: Profile found:", doc.data());
-                            this.currentUser = { id: user.uid, ...doc.data() };
-                            resolve(this.currentUser);
-                        } else {
-                            console.warn("storage.js: Profile missing for user!");
-                            // Profile missing?
-                            resolve(null);
-                        }
-                    } catch (e) {
-                        console.error("storage.js: Firestore error:", e);
+                    const doc = await firestore.collection(USERS_COLLECTION).doc(user.uid).get();
+                    if (doc.exists) {
+                        this.currentUser = { id: user.uid, ...doc.data() };
+                        resolve(this.currentUser);
+                    } else {
                         resolve(null);
                     }
                 } else {
-                    console.warn("storage.js: No user logged in (user is null)");
-                    this.currentUser = null;
-                    resolve(null);
+                    // 2. Fallback to localStorage (for Students)
+                    const saved = localStorage.getItem('dkotoba_user');
+                    if (saved) {
+                        try {
+                            this.currentUser = JSON.parse(saved);
+                            resolve(this.currentUser);
+                        } catch (e) {
+                            localStorage.removeItem('dkotoba_user');
+                            resolve(null);
+                        }
+                    } else {
+                        this.currentUser = null;
+                        resolve(null);
+                    }
                 }
                 unsubscribe();
             });
@@ -81,57 +81,129 @@ class StorageManager {
     // --- Auth (Async) ---
     async login(username, password) {
         try {
-            const email = getEmail(username);
-            const userCredential = await auth.signInWithEmailAndPassword(email, password);
-            const uid = userCredential.user.uid;
+            const inputPassword = (password || '').trim();
+            // Find user in Firestore by username
+            const userDoc = await this.getUserByUsername(username);
 
-            // Get user details
-            const doc = await firestore.collection(USERS_COLLECTION).doc(uid).get();
-            if (doc.exists) {
-                const userData = doc.data();
-                this.currentUser = { id: uid, ...userData };
-                return { success: true, user: this.currentUser };
-            } else {
-                return { success: false, message: 'Data user tidak ditemukan.' };
+            if (!userDoc) {
+                return { success: false, message: 'Username tidak ditemukan.' };
             }
+
+            // ADMIN Flow: Strict check to avoid student falling into Firebase Auth
+            const isAdmin = userDoc.username === 'admin' && (userDoc.role || '').toLowerCase() === 'admin';
+
+            if (isAdmin) {
+                const email = getEmail(username);
+                const userCredential = await auth.signInWithEmailAndPassword(email, inputPassword);
+                const uid = userCredential.user.uid;
+                this.currentUser = { id: uid, ...userDoc };
+                return { success: true, user: this.currentUser };
+            }
+
+            // STUDENT Flow: 100% Firestore-based
+            // 🔴 Handle Legacy Account (No password field)
+            if (!userDoc.password) {
+                return {
+                    success: false,
+                    needActivation: true,
+                    userId: userDoc.id
+                };
+            }
+
+            // Verify password against Firestore (Trimmed compare)
+            if (userDoc.password.trim() !== inputPassword) {
+                return { success: false, message: 'Password salah.' };
+            }
+
+            // Login success for student
+            this.currentUser = userDoc;
+            localStorage.setItem('dkotoba_user', JSON.stringify(userDoc));
+            return { success: true, user: this.currentUser };
+
         } catch (error) {
             console.error("Login Error:", error);
-            return { success: false, message: 'Username atau password salah.' };
+            if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                return { success: false, message: 'Username atau password salah.' };
+            }
+            return { success: false, message: 'Terjadi kesalahan saat masuk.' };
         }
     }
 
     async register(username, password, fullName = '') {
         try {
-            // check if username exists by query? 
-            // Firestore rules could enforce unique, but simplest is create and catch error
+            // check if username exists
+            const existing = await this.getUserByUsername(username);
+            if (existing) {
+                return { success: false, message: 'Username sudah digunakan.' };
+            }
 
-            const email = getEmail(username);
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-            const uid = userCredential.user.uid;
-
+            // Students are NO LONGER created in Firebase Auth
             const newUser = {
-                id: uid,
                 username: username,
                 fullName: fullName,
+                password: (password || '').trim(),
                 role: 'user', // Default role
                 score: 0,
                 completedQuizzes: 0,
-                history: [], // IDs of completed quizzes
-                quizHistoryDetails: {}, // Detailed answers
+                history: [],
+                quizHistoryDetails: {},
                 createdAt: new Date().toISOString()
             };
 
-            await firestore.collection(USERS_COLLECTION).doc(uid).set(newUser);
+            const docRef = await firestore.collection(USERS_COLLECTION).add(newUser);
+            const uid = docRef.id;
+
+            // Sync the ID inside the document
+            await docRef.update({ id: uid });
+            newUser.id = uid;
+
             return { success: true, user: newUser };
 
         } catch (error) {
             console.error("Register Error:", error);
-            if (error.code === 'auth/email-already-in-use') {
-                return { success: false, message: 'Username sudah digunakan.' };
-            }
             return { success: false, message: error.message };
         }
     }
+
+    async checkUserStatus(username) {
+        try {
+            // Priority Check: Firestore (Real Source of Truth for "Username")
+            const user = await this.getUserByUsername(username);
+            if (user) {
+                return 'existing';
+            }
+
+            // Fallback: Check Auth if needed, but Firestore should be sufficient for this app's logic
+            // If strictly relying on username uniqueness in users collection:
+            return 'new';
+
+        } catch (error) {
+            console.error("Check User Error:", error);
+            return 'new';
+        }
+    }
+
+    async getUserByUsername(username) {
+        try {
+            const snapshot = await firestore.collection(USERS_COLLECTION)
+                .where('username', '==', username)
+                .limit(1)
+                .get();
+
+            if (!snapshot.empty) {
+                const doc = snapshot.docs[0];
+                return {
+                    id: doc.id,
+                    ...doc.data()
+                };
+            }
+            return null;
+        } catch (error) {
+            console.error("Get User Error:", error);
+            return null;
+        }
+    }
+
 
     async createDefaultAdmin() {
         try {
@@ -171,6 +243,7 @@ class StorageManager {
 
     async logout() {
         await auth.signOut();
+        localStorage.removeItem('dkotoba_user');
         this.currentUser = null;
         window.location.href = '../../index.html';
     }
@@ -212,23 +285,25 @@ class StorageManager {
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
 
-    async addQuiz(title, link, questions, status) {
+    async addQuiz(title, link, questions, status, deadline = null) {
         const newQuiz = {
             title,
             link,
             questions: parseInt(questions),
             status,
+            deadline,
             date: new Date().toISOString()
         };
         await firestore.collection(QUIZZES_COLLECTION).add(newQuiz);
     }
 
-    async updateQuiz(id, title, link, questions, status) {
+    async updateQuiz(id, title, link, questions, status, deadline = null) {
         await firestore.collection(QUIZZES_COLLECTION).doc(id).update({
             title,
             link,
             questions: parseInt(questions),
-            status
+            status,
+            deadline
         });
     }
 
@@ -244,14 +319,26 @@ class StorageManager {
 
     async updateUser(id, data) {
         try {
-            // Note: Cannot update Auth password from here for other users
-            // only Firestore data
-            const updateData = { ...data };
-            delete updateData.password; // Remove password if present as we can't update it directly here
+            // Field-specific update strategy to protect other user data
+            const updateData = {
+                fullName: data.fullName ?? '',
+                username: (data.username || '').trim()
+            };
+
+            // Sanitize role
+            const role = (data.role || '').toLowerCase();
+            if (role === 'admin' || role === 'user') {
+                updateData.role = role;
+            }
+
+            // Only update password if provided and not empty
+            if (typeof data.password === 'string' && data.password.trim() !== '') {
+                updateData.password = data.password.trim();
+            }
 
             await firestore.collection(USERS_COLLECTION).doc(id).update(updateData);
 
-            // Return updated user data (mocked or fetched)
+            // Return updated user data
             return { success: true, user: { id, ...updateData }, message: "User updated" };
         } catch (e) {
             console.error(e);
@@ -267,7 +354,7 @@ class StorageManager {
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
 
-    async updateUserProgress(userId, score, quizId, answers) {
+    async updateUserProgress(userId, score, quizId, answers, duration = null) {
         const userRef = firestore.collection(USERS_COLLECTION).doc(userId);
 
         // Transaction to ensure atomic updates
@@ -296,6 +383,7 @@ class StorageManager {
             quizHistoryDetails[quizId] = {
                 score: score,
                 answers: answers,
+                duration: duration,
                 date: new Date().toISOString()
             };
 

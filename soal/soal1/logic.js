@@ -135,7 +135,11 @@
                     .get();
 
                 if (!snapshot.empty) {
-                    return snapshot.docs[0].data();
+                    const doc = snapshot.docs[0];
+                    return {
+                        id: doc.id,
+                        ...doc.data()
+                    };
                 }
                 return null;
             } catch (error) {
@@ -144,7 +148,7 @@
             }
         }
 
-        async updateUserProgress(userId, score, quizId, answers) {
+        async updateUserProgress(userId, score, quizId, answers, duration = null) {
             const userRef = firestore.collection(USERS_COLLECTION).doc(userId);
             await firestore.runTransaction(async (transaction) => {
                 const userDoc = await transaction.get(userRef);
@@ -166,6 +170,7 @@
                 quizHistoryDetails[quizId] = {
                     score: score,
                     answers: answers,
+                    duration: duration,
                     date: new Date().toISOString()
                 };
 
@@ -198,6 +203,7 @@ function quizApp() {
         userAnswers: [],
         db: null,
         currentUser: null,
+        startTime: null,
 
         // Auth Overlay Logic
         showAuthOverlay: false,
@@ -208,12 +214,19 @@ function quizApp() {
         authStatus: null, // 'new' or 'existing'
         authLoading: false,
         authError: '',
+        durationDisplay: '',
+        currentTimeDisplay: '0s',
+        timerInterval: null,
+        isClosed: false,
+        deadlineTime: null,
 
         async init() {
             // Initialize StorageManager
             if (typeof window.StorageManager !== 'undefined') {
                 this.db = new window.StorageManager();
                 this.currentUser = await this.db.getCurrentUser();
+                // If user is already logged in, start timer now
+                if (this.currentUser) this.startTimer();
             } else {
                 console.error("StorageManager not defined! Check logic.js.");
             }
@@ -225,11 +238,37 @@ function quizApp() {
 
             this.quizId = qId ? qId : 'soal1';
 
+            // Check Deadline
+            await this.checkDeadline();
+
             // Enforce Authentication via Overlay instead of Redirect
             if (!this.currentUser) {
                 this.showAuthOverlay = true;
             } else {
                 this.checkReviewMode(mode);
+            }
+        },
+
+        async checkDeadline() {
+            if (!this.db || !this.quizId) return;
+
+            try {
+                // Fetch specific quiz from Firestore
+                const doc = await firestore.collection('quizzes').doc(this.quizId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.deadline) {
+                        this.deadlineTime = data.deadline;
+                        const now = new Date();
+                        const deadline = new Date(data.deadline);
+
+                        if (now > deadline) {
+                            this.isClosed = true;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Error checking deadline:", e);
             }
         },
 
@@ -286,6 +325,7 @@ function quizApp() {
 
                 if (res.success) {
                     this.currentUser = res.user;
+                    this.startTimer(); // Use dedicated startTimer
                     this.showAuthOverlay = false;
                     // Check if review mode needed
                     const params = new URLSearchParams(window.location.search);
@@ -423,14 +463,41 @@ function quizApp() {
         finishQuiz() {
             this.score = Math.round(this.score);
             this.showResult = true;
+            this.stopTimer();
 
             // Save to DB
+            const durationSeconds = Math.round((Date.now() - this.startTime) / 1000);
+            this.durationDisplay = this.formatDuration(durationSeconds);
+
             if (this.db && this.currentUser && this.quizId) {
-                this.db.updateUserProgress(this.currentUser.id, this.score, this.quizId, this.userAnswers);
-                console.log('Progress saved for quiz:', this.quizId);
+                this.db.updateUserProgress(this.currentUser.id, this.score, this.quizId, this.userAnswers, durationSeconds);
+                console.log('Progress saved for quiz:', this.quizId, 'Duration:', durationSeconds, 's');
             } else {
                 console.warn('StorageManager, CurrentUser, or QuizId not found');
             }
+        },
+
+        startTimer() {
+            this.stopTimer();
+            this.startTime = Date.now();
+            this.timerInterval = setInterval(() => {
+                const seconds = Math.round((Date.now() - this.startTime) / 1000);
+                this.currentTimeDisplay = this.formatDuration(seconds);
+            }, 1000);
+        },
+
+        stopTimer() {
+            if (this.timerInterval) {
+                clearInterval(this.timerInterval);
+                this.timerInterval = null;
+            }
+        },
+
+        formatDuration(seconds) {
+            if (seconds < 60) return seconds + ' detik';
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return m + 'm ' + s + 's';
         },
 
         resetQuiz() {
@@ -440,6 +507,9 @@ function quizApp() {
             this.showResult = false;
             this.showReview = false;
             this.selectedAnswer = null;
+            this.durationDisplay = '';
+            this.currentTimeDisplay = '0s';
+            this.startTimer();
             this.essayAnswer = '';
             this.userAnswers = [];
         }

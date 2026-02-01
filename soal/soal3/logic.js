@@ -433,11 +433,14 @@ function quizApp() {
 
         startTimer() {
             this.stopTimer();
-            this.startTime = Date.now();
-            this.currentTimeDisplay = '0 detik';
+            const self = this;
+            self.startTime = Date.now();
+            self.currentTimeDisplay = '0 detik';
+
             this.timerInterval = setInterval(() => {
-                const seconds = Math.round((Date.now() - this.startTime) / 1000);
-                this.currentTimeDisplay = this.formatDuration(seconds);
+                const now = Date.now();
+                const seconds = Math.round((now - self.startTime) / 1000);
+                self.currentTimeDisplay = self.formatDuration(seconds);
             }, 1000);
         },
 

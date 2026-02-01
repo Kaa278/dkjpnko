@@ -434,6 +434,7 @@ function quizApp() {
         startTimer() {
             this.stopTimer();
             this.startTime = Date.now();
+            this.currentTimeDisplay = '0 detik';
             this.timerInterval = setInterval(() => {
                 const seconds = Math.round((Date.now() - this.startTime) / 1000);
                 this.currentTimeDisplay = this.formatDuration(seconds);

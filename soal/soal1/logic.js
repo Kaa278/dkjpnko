@@ -210,10 +210,8 @@ function quizApp() {
         authStep: 'username', // 'username' or 'password'
         authUsername: '',
         authPassword: '',
-        authFullName: '',
-        authStatus: null, // 'new' or 'existing'
-        authLoading: false,
         authError: '',
+        quizId: null,
         durationDisplay: '',
         currentTimeDisplay: '0s',
         timerInterval: null,
@@ -236,7 +234,12 @@ function quizApp() {
             const qId = params.get('quizId');
             const mode = params.get('mode');
 
-            this.quizId = qId ? qId : 'soal1';
+            if (qId) {
+                this.quizId = qId;
+            } else {
+                const parts = window.location.pathname.split('/');
+                this.quizId = parts[parts.length - 2]; // contoh: "soal1"
+            }
 
             // Check Deadline
             await this.checkDeadline();

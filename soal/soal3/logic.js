@@ -1,5 +1,5 @@
 /**
- * logic.js for Soal2
+ * logic.js for Soal3
  * Contains both StorageManager (Firebase) and QuizApp logic
  */
 
@@ -213,7 +213,7 @@ function quizApp() {
                 this.quizId = qId;
             } else {
                 const parts = window.location.pathname.split('/');
-                this.quizId = parts[parts.length - 2]; // contoh: "soal2"
+                this.quizId = parts[parts.length - 2]; // contoh: "soal3"
             }
 
             await this.checkDeadline();
@@ -317,42 +317,45 @@ function quizApp() {
             }
         },
 
+        // ==========================
+        // SOAL 3 (30 soal) - BEDA
+        // ==========================
         questions: [
             // A. Kosakata (10 soal)
-            { type: 'mc', text: 'ねこ', romaji: 'neko', options: ['anjing', 'kucing', 'burung', 'ikan'], answer: 'kucing' },
-            { type: 'mc', text: 'いぬ', romaji: 'inu', options: ['kucing', 'sapi', 'anjing', 'kuda'], answer: 'anjing' },
-            { type: 'mc', text: 'みず', romaji: 'mizu', options: ['teh', 'air', 'susu', 'kopi'], answer: 'air' },
-            { type: 'mc', text: 'ほん', romaji: 'hon', options: ['meja', 'buku', 'tas', 'kursi'], answer: 'buku' },
-            { type: 'mc', text: 'がくせい', romaji: 'gakusei', options: ['guru', 'siswa', 'dokter', 'polisi'], answer: 'siswa' },
-            { type: 'mc', text: 'せんせい', romaji: 'sensei', options: ['siswa', 'teman', 'guru', 'ayah'], answer: 'guru' },
-            { type: 'mc', text: 'おおきい', romaji: 'ookii', options: ['kecil', 'besar', 'tinggi', 'panjang'], answer: 'besar' },
-            { type: 'mc', text: 'ちいさい', romaji: 'chiisai', options: ['besar', 'kecil', 'tinggi', 'rendah'], answer: 'kecil' },
-            { type: 'mc', text: 'あかい', romaji: 'akai', options: ['biru', 'hitam', 'merah', 'putih'], answer: 'merah' },
-            { type: 'mc', text: 'しろい', romaji: 'shiroi', options: ['hitam', 'putih', 'merah', 'kuning'], answer: 'putih' },
+            { type: 'mc', text: 'やま', romaji: 'yama', options: ['laut', 'gunung', 'sungai', 'hutan'], answer: 'gunung' },
+            { type: 'mc', text: 'かわ', romaji: 'kawa', options: ['sungai', 'danau', 'gunung', 'pantai'], answer: 'sungai' },
+            { type: 'mc', text: 'うみ', romaji: 'umi', options: ['laut', 'hujan', 'angin', 'awan'], answer: 'laut' },
+            { type: 'mc', text: 'はな', romaji: 'hana', options: ['bunga', 'daun', 'akar', 'pohon'], answer: 'bunga' },
+            { type: 'mc', text: 'くるま', romaji: 'kuruma', options: ['sepeda', 'kereta', 'mobil', 'motor'], answer: 'mobil' },
+            { type: 'mc', text: 'でんしゃ', romaji: 'densha', options: ['bus', 'kereta', 'mobil', 'pesawat'], answer: 'kereta' },
+            { type: 'mc', text: 'たべもの', romaji: 'tabemono', options: ['minuman', 'makanan', 'pakaian', 'rumah'], answer: 'makanan' },
+            { type: 'mc', text: 'のみもの', romaji: 'nomimono', options: ['makanan', 'minuman', 'uang', 'buku'], answer: 'minuman' },
+            { type: 'mc', text: 'あたらしい', romaji: 'atarashii', options: ['baru', 'lama', 'panas', 'dingin'], answer: 'baru' },
+            { type: 'mc', text: 'ふるい', romaji: 'furui', options: ['cepat', 'lama', 'baru', 'bagus'], answer: 'lama' },
 
-            // B. Pilihan Ganda (10 soal)
-            { type: 'mc', text: 'わたしは がくせい です。', romaji: 'watashi wa gakusei desu.', options: ['Saya seorang guru', 'Saya seorang siswa', 'Saya pergi ke sekolah', 'Saya belajar bahasa Jepang'], answer: 'Saya seorang siswa' },
-            { type: 'mc', text: 'これは ほん です。', romaji: 'kore wa hon desu.', options: ['Ini meja', 'Ini buku', 'Itu tas', 'Itu pensil'], answer: 'Ini buku' },
-            { type: 'mc', text: 'ねこが います。', romaji: 'neko ga imasu.', options: ['Ada seekor kucing', 'Ada seekor anjing', 'Saya punya kucing', 'Kucing itu besar'], answer: 'Ada seekor kucing' },
-            { type: 'mc', text: 'みずを のみます。', romaji: 'mizu o nomimasu.', options: ['Minum air', 'Makan nasi', 'Membaca buku', 'Pergi ke rumah'], answer: 'Minum air' },
-            { type: 'mc', text: 'パンを たべます。', romaji: 'pan o tabemasu.', options: ['Minum roti', 'Membeli roti', 'Makan roti', 'Melihat roti'], answer: 'Makan roti' },
-            { type: 'mc', text: 'いぬは ちいさい です。', romaji: 'inu wa chiisai desu.', options: ['Anjing itu besar', 'Anjing itu kecil', 'Anjing itu putih', 'Anjing itu lucu'], answer: 'Anjing itu kecil' },
-            { type: 'mc', text: 'せんせいは きます。', romaji: 'sensei wa kimasu.', options: ['Guru pergi', 'Guru datang', 'Guru makan', 'Guru tidur'], answer: 'Guru datang' },
-            { type: 'mc', text: 'きょう は あめ です。', romaji: 'kyou wa ame desu.', options: ['Hari ini cerah', 'Hari ini hujan', 'Hari ini panas', 'Hari ini dingin'], answer: 'Hari ini hujan' },
-            { type: 'mc', text: 'わたしは うちへ いきます。', romaji: 'watashi wa uchi e ikimasu.', options: ['Saya datang ke rumah', 'Saya tidur di rumah', 'Saya pergi ke rumah', 'Saya makan di rumah'], answer: 'Saya pergi ke rumah' },
-            { type: 'mc', text: 'そらは あおい です。', romaji: 'sora wa aoi desu.', options: ['Langit itu merah', 'Langit itu hitam', 'Langit itu biru', 'Langit itu putih'], answer: 'Langit itu biru' },
+            // B. Pilihan Ganda Kalimat (10 soal)
+            { type: 'mc', text: 'わたしは みずを のみます。', romaji: 'watashi wa mizu o nomimasu.', options: ['Saya minum air', 'Saya makan air', 'Saya melihat air', 'Saya membeli air'], answer: 'Saya minum air' },
+            { type: 'mc', text: 'これは くるま です。', romaji: 'kore wa kuruma desu.', options: ['Ini sepeda', 'Ini mobil', 'Itu motor', 'Itu bus'], answer: 'Ini mobil' },
+            { type: 'mc', text: 'はなは きれい です。', romaji: 'hana wa kirei desu.', options: ['Bunga itu cantik', 'Bunga itu besar', 'Bunga itu murah', 'Bunga itu panas'], answer: 'Bunga itu cantik' },
+            { type: 'mc', text: 'わたしは でんしゃで いきます。', romaji: 'watashi wa densha de ikimasu.', options: ['Saya pergi naik kereta', 'Saya tidur di kereta', 'Saya makan kereta', 'Saya beli kereta'], answer: 'Saya pergi naik kereta' },
+            { type: 'mc', text: 'きょう は さむい です。', romaji: 'kyou wa samui desu.', options: ['Hari ini panas', 'Hari ini dingin', 'Hari ini hujan', 'Hari ini cerah'], answer: 'Hari ini dingin' },
+            { type: 'mc', text: 'わたしは うみに いきます。', romaji: 'watashi wa umi ni ikimasu.', options: ['Saya pergi ke laut', 'Saya pergi ke gunung', 'Saya pergi ke rumah', 'Saya pergi ke sekolah'], answer: 'Saya pergi ke laut' },
+            { type: 'mc', text: 'やまは たかい です。', romaji: 'yama wa takai desu.', options: ['Gunung itu rendah', 'Gunung itu tinggi', 'Gunung itu kecil', 'Gunung itu tua'], answer: 'Gunung itu tinggi' },
+            { type: 'mc', text: 'これは あたらしい ほん です。', romaji: 'kore wa atarashii hon desu.', options: ['Ini buku baru', 'Ini buku lama', 'Itu buku baru', 'Itu buku kecil'], answer: 'Ini buku baru' },
+            { type: 'mc', text: 'たべものを かいます。', romaji: 'tabemono o kaimasu.', options: ['Membeli makanan', 'Makan makanan', 'Minum makanan', 'Melihat makanan'], answer: 'Membeli makanan' },
+            { type: 'mc', text: 'かわに さかなが います。', romaji: 'kawa ni sakana ga imasu.', options: ['Ada ikan di sungai', 'Ada burung di sungai', 'Ada ikan di laut', 'Ada ikan di gunung'], answer: 'Ada ikan di sungai' },
 
             // C. Esai (10 soal)
-            { type: 'essay', text: 'わたしは がくせい です。', romaji: 'watashi wa gakusei desu', answer: 'Saya adalah seorang siswa.' },
-            { type: 'essay', text: 'これは えんぴつ です。', romaji: 'kore wa enpitsu desu', answer: 'Ini adalah sebuah pensil.' },
-            { type: 'essay', text: 'ねこが います。', romaji: 'neko ga imasu', answer: 'Ada seekor kucing.' },
-            { type: 'essay', text: 'みずを のみます。', romaji: 'mizu o nomimasu', answer: 'Minum air.' },
-            { type: 'essay', text: 'パンを たべます。', romaji: 'pan o tabemasu', answer: 'Makan roti.' },
-            { type: 'essay', text: 'いぬは おおきい です。', romaji: 'inu wa ookii desu', answer: 'Anjing itu besar.' },
-            { type: 'essay', text: 'せんせいは がっこうへ いきます。', romaji: 'sensei wa gakkou e ikimasu', answer: 'Guru pergi ke sekolah.' },
-            { type: 'essay', text: 'きょう は はれ です。', romaji: 'kyou wa hare desu', answer: 'Hari ini cerah.' },
-            { type: 'essay', text: 'わたしは にほんごを べんきょうします。', romaji: 'watashi wa nihongo o benkyou shimasu', answer: 'Saya belajar bahasa Jepang.' },
-            { type: 'essay', text: 'そらは きれい です。', romaji: 'sora wa kirei desu', answer: 'Langit itu indah.' }
+            { type: 'essay', text: 'わたしは たべものを たべます。', romaji: 'watashi wa tabemono o tabemasu', answer: 'Saya makan makanan.' },
+            { type: 'essay', text: 'わたしは のみものを のみます。', romaji: 'watashi wa nomimono o nomimasu', answer: 'Saya minum minuman.' },
+            { type: 'essay', text: 'これは でんしゃ です。', romaji: 'kore wa densha desu', answer: 'Ini adalah kereta.' },
+            { type: 'essay', text: 'やまに いきます。', romaji: 'yama ni ikimasu', answer: 'Pergi ke gunung.' },
+            { type: 'essay', text: 'うみに いきます。', romaji: 'umi ni ikimasu', answer: 'Pergi ke laut.' },
+            { type: 'essay', text: 'はなを みます。', romaji: 'hana o mimasu', answer: 'Melihat bunga.' },
+            { type: 'essay', text: 'わたしは くるまが あります。', romaji: 'watashi wa kuruma ga arimasu', answer: 'Saya punya mobil.' },
+            { type: 'essay', text: 'きょう は あめ です。', romaji: 'kyou wa ame desu', answer: 'Hari ini hujan.' },
+            { type: 'essay', text: 'かわは ながい です。', romaji: 'kawa wa nagai desu', answer: 'Sungai itu panjang.' },
+            { type: 'essay', text: 'この ほんは ふるい です。', romaji: 'kono hon wa furui desu', answer: 'Buku ini lama.' }
         ],
 
         get totalQuestions() { return this.questions.length; },
@@ -370,40 +373,59 @@ function quizApp() {
             const q = this.questions[this.currentIndex];
             let isCorrect = false;
             let userAnswer = '';
+
             if (q.type === 'mc') {
                 userAnswer = this.selectedAnswer;
                 if (this.selectedAnswer === q.answer) isCorrect = true;
             } else {
                 userAnswer = this.essayAnswer;
-                if (this.essayAnswer.toLowerCase().trim() === q.answer.toLowerCase() ||
-                    this.essayAnswer.toLowerCase().trim() === q.answer.toLowerCase().replace('.', '').trim()) isCorrect = true;
+
+                const userNorm = this.essayAnswer.toLowerCase().trim();
+                const ansNorm = q.answer.toLowerCase().trim();
+                const ansNormNoDot = q.answer.toLowerCase().replace('.', '').trim();
+
+                if (userNorm === ansNorm || userNorm === ansNormNoDot) isCorrect = true;
             }
+
             this.userAnswers.push(userAnswer);
+
             if (isCorrect) {
                 this.correctCount++;
                 this.score += 100 / this.totalQuestions;
             }
+
             this.selectedAnswer = null;
             this.essayAnswer = '';
-            if (this.currentIndex < this.totalQuestions - 1) this.currentIndex++;
-            else this.finishQuiz();
+
+            if (this.currentIndex < this.totalQuestions - 1) {
+                this.currentIndex++;
+            } else {
+                this.finishQuiz();
+            }
         },
 
         isCorrect(index) {
             const q = this.questions[index];
             const userAns = this.userAnswers[index];
             if (!userAns) return false;
+
             if (q.type === 'mc') return userAns === q.answer;
-            return userAns.toLowerCase().trim() === q.answer.toLowerCase() ||
-                userAns.toLowerCase().trim() === q.answer.toLowerCase().replace('.', '').trim();
+
+            const userNorm = userAns.toLowerCase().trim();
+            const ansNorm = q.answer.toLowerCase().trim();
+            const ansNormNoDot = q.answer.toLowerCase().replace('.', '').trim();
+
+            return userNorm === ansNorm || userNorm === ansNormNoDot;
         },
 
         finishQuiz() {
             this.score = Math.round(this.score);
             this.showResult = true;
             this.stopTimer();
+
             const durationSeconds = Math.round((Date.now() - this.startTime) / 1000);
             this.durationDisplay = this.formatDuration(durationSeconds);
+
             if (this.db && this.currentUser && this.quizId) {
                 this.db.updateUserProgress(this.currentUser.id, this.score, this.quizId, this.userAnswers, durationSeconds);
             }

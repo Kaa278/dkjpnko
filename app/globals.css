@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-plus-jakarta);
+}
+
+/* Custom Utilities */
+.glass {
+  @apply bg-white/80 backdrop-blur-md border border-white/50;
+}
+
+/* Custom Scrollbar Styles - Subtle */
+.sidebar-scrollbar {
+  scrollbar-width: thin !important;
+  scrollbar-color: #e2e8f0 transparent !important;
+}
+
+/* Webkit Subtle */
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 5px !important;
+  display: block !important;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #e2e8f0 !important;
+  /* Subtle gray (slate-200) */
+  border-radius: 10px !important;
+  border: 1px solid transparent !important;
+  background-clip: content-box !important;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #cbd5e1 !important;
+  /* slate-300 */
+}

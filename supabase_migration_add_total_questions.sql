@@ -1,0 +1,3 @@
+
+ALTER TABLE quizzes
+ADD COLUMN IF NOT EXISTS total_questions INTEGER DEFAULT 0;

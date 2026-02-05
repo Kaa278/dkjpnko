@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan N5 - Hiragana Kotoba</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase JS Library -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Auth Modal -->
+        <div id="auth-modal" style="display: none; padding: 32px; text-align: center;">
+            <h2 id="auth-title" style="margin-bottom: 8px; color: #1e293b;">Login Siswa</h2>
+            <p style="color: #64748b; margin-bottom: 24px;">Masuk untuk menyimpan skor.</p>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                <input type="text" id="auth-username" placeholder="Username"
+                    style="padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; font-weight: 600;">
+                <input type="text" id="auth-fullname" placeholder="Nama Lengkap"
+                    style="padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; display: none;">
+                <input type="password" id="auth-password" placeholder="Password"
+                    style="padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1;">
+            </div>
+
+            <button onclick="handleAuth()" class="btn-primary" style="width: 100%; margin-top: 0;">Masuk /
+                Daftar</button>
+
+            <div style="margin-top: 20px; font-size: 0.9rem; color: #64748b;">
+                <span id="auth-switch-text">Belum punya akun?</span>
+                <a href="#" onclick="toggleAuthMode()" id="auth-switch-btn"
+                    style="color: #4f46e5; font-weight: 700; text-decoration: none;">Daftar</a>
+            </div>
+            <p id="auth-msg" style="margin-top: 12px; font-size: 0.85rem; color: #dc2626; min-height: 20px;"></p>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="start-screen" style="display: none;">
+            <h2 style="margin-bottom: 10px;">Latihan Kosakata</h2>
+            <p style="color: #64748b; margin-bottom: 30px;">Tebak arti kata dari Hiragana berikut.</p>
+            <button class="btn-primary" onclick="startQuiz()">Mulai Quiz</button>
+        </div>
+
+        <!-- Quiz Interface (Hidden initially) -->
+        <div id="quiz-interface" style="display: none;">
+            <header>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span id="q-counter" style="font-weight: 700; opacity: 0.8;">1 / 10</span>
+                    <span id="timer"
+                        style="font-weight: 700; background: rgba(0,0,0,0.1); padding: 4px 10px; border-radius: 8px;">00:00</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+            </header>
+
+            <div class="question-area">
+                <div id="question-text" class="question-text">Loading...</div>
+                <div class="question-sub">Apa arti kata ini?</div>
+            </div>
+
+            <div id="options-grid" class="options-grid">
+                <!-- Options will be injected here -->
+            </div>
+        </div>
+
+        <!-- Result Screen (Hidden) -->
+        <div id="result-screen" class="result-screen">
+            <div class="score-badge" id="final-score">0</div>
+            <h2 style="margin-bottom: 10px; color: #1e293b;">Selesai!</h2>
+            <p style="color: #64748b;" id="result-text">Menyimpan skor...</p>
+
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 24px;">
+                <button class="btn-primary" onclick="showReview()"
+                    style="background: #f1f5f9; color: #475569; border: 2px solid #e2e8f0; box-shadow: none; margin:0; flex:1;">Lihat
+                    Jawaban</button>
+                <button class="btn-primary" onclick="location.reload()" style="margin:0; flex:1;">Ulangi</button>
+            </div>
+        </div>
+
+        <!-- Review Screen (Hidden) -->
+        <div id="review-screen" style="display: none; padding: 24px;">
+            <h3 style="text-align: center; margin-bottom: 20px;">Review Jawaban</h3>
+            <div id="review-list" style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Items injected here -->
+            </div>
+            <button class="btn-primary" onclick="location.reload()" style="margin-top: 24px; width: 100%;">Tutup /
+                Ulangi</button>
+        </div>
+    </div>
+
+    <!-- Logic Script -->
+    <script src="logic.js"></script>
+</body>
+
+</html>

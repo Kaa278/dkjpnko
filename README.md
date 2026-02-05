@@ -1,118 +1,69 @@
-<div align="center">
+# DKotoba Kuis
 
+A quiz and learning management dashboard for Japanese language learners (N5 level). Built with **Next.js 14**, **Tailwind CSS**, and **Supabase**.
 
-# 🏯 DKotoba (DKotoba Quiz)
-### Platform Pembelajaran Bahasa Jepang Interaktif
+## Features
 
-![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge&logo=activity)
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Alpine.js](https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpinedotjs&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
+### 🔹 Admin Dashboard
+-   **Overview**: View statistics (Total Students, Quizzes, Active Quizzes).
+-   **Activity Tracking**: Monitor daily quiz attempts and weekly activity charts.
+-   **Leaderboard**: View top students based on quiz scores and speed.
+-   **Content Management**: Manage quizzes, questions, and learning materials.
+-   **Student Management**: View and manage enrolled students.
 
-<br />
+### 🔹 Student Features
+-   **Quiz Data**: Static quiz interface (legacy support) linked to the main dashboard.
+-   **Score Tracking**: Scores are automatically saved to the Supabase database.
 
-<p align="center">
-  <b>DKotoba</b> adalah platform web modern untuk membantu siswa menguasai kosakata Bahasa Jepang (Kotoba) melalui metode kuis interaktif yang menyenangkan dan efektif.
-</p>
+## Tech Stack
+-   **Framework**: Next.js 14 (App Router)
+-   **Styling**: Tailwind CSS
+-   **Database**: Supabase (PostgreSQL)
+-   **Auth**: Supabase Auth
+-   **Icons**: Heroicons
+-   **Charts**: Recharts
 
-[Fitur Utama](#-fitur-utama) • [Teknologi](#-teknologi) • [Struktur Project](#-struktur-project) • [Instalasi](#-instalasi) • [Deploy](#-deploy)
+## Setup & Installation
 
-</div>
-
----
-
-## ✨ Fitur Utama
-
-🎯 **Kuis & Latihan**
-- **Latihan Soal JLPT N5 & N4**: Tersedia dalam format Pilihan Ganda dan Essay.
-- **Sistem Penilaian Otomatis**: Hasil langsung keluar setelah pengerjaan.
-
-📊 **Progress & Analytics**
-- **Real-time Tracking**: Pantau perkembangan belajar secara langsung.
-- **Leaderboard**: Bersaing dengan siswa lain untuk menempati peringkat teratas.
-
-👥 **Manajemen Pengguna**
-- **Siswa**: Dashboard khusus untuk mengakses materi dan melihat riwayat nilai.
-- **Admin**: Panel kontrol lengkap untuk mengelola data siswa, materi, dan soal kuis.
-
-🔐 **Keamanan**
-- **Autentikasi Aman**: Login dan registrasi terintegrasi dengan **Google Firebase Authentication**.
-
----
-
-## 🛠 Teknologi
-
-Project ini dibangun dengan stack teknologi modern yang ringan namun powerful:
-
-| Komponen | Teknologi | Deskripsi |
-| :--- | :--- | :--- |
-| **Frontend** | ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white) | Struktur dasar aplikasi |
-| **Styling** | ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white) | Framework CSS utility-first untuk desain responsif |
-| **Interactivity** | ![Alpine.js](https://img.shields.io/badge/Alpine.js-8BC0D0?logo=alpinedotjs&logoColor=white) | Framework JS ringan untuk state management di UI |
-| **Backend** | ![Firebase](https://img.shields.io/badge/Firebase-039BE5?logo=Firebase&logoColor=white) | Authentication & Cloud Firestore Database |
-| **Font** | Plus Jakarta Sans | Tipografi modern dan mudah dibaca |
-
----
-
-## 📂 Struktur Project
-
-```bash
-dkotobakuis/
-├── 📂 assets/          # Aset statis (Images, CSS custom, JS utilities)
-├── 📂 pages/           # Dashboard Admin dan User
-│   ├── admin/
-│   └── user/
-├── 📂 soal/            # File HTML untuk setiap paket kuis
-│   ├── soal1/
-│   └── khusussam/
-├── 📄 auth.html        # Halaman Login & Register
-├── 📄 index.html       # Landing Page Utama
-└── 📄 README.md        # Dokumentasi Project (Anda di sini)
-```
-
----
-
-## 🚀 Instalasi & Menjalankan Lokal
-
-Ikuti langkah berikut untuk menjalankan project ini di komputer Anda:
-
-1.  **Clone Repository**
+1.  **Clone the repository**
     ```bash
-    git clone https://github.com/username/dkotobakuis.git
-    cd dkotobakuis
+    git clone https://github.com/Kaa278/dkotoba_kuis.git
+    cd dkotoba_kuis
     ```
 
-2.  **Jalankan Local Server**
-    Karena menggunakan module script dan assets, disarankan menggunakan local server.
-    
-    *Menggunakan Python:*
+2.  **Install dependencies**
     ```bash
-    python3 -m http.server 5501
+    npm install
     ```
-    
-    *Atau menggunakan VS Code Live Server extension.*
 
-3.  **Akses Aplikasi**
-    Buka browser dan kunjungi:
-    `http://localhost:5501`
+3.  **Environment Variables**
+    Create a `.env.local` file and add your Supabase credentials:
+    ```env
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
 
----
+4.  **Run Development Server**
+    ```bash
+    npm run dev
+    ```
 
-## 🌐 Deploy
+## Database Schema
 
-Project ini bersifat statis (kecuali koneksi Firebase yang berjalan di client-side), sehingga sangat mudah di-deploy ke berbagai platform:
+Ensure your Supabase database has the required tables:
+-   `profiles`: Users/Admins
+-   `quizzes`: Quiz metadata
+-   `quiz_questions`: Questions for each quiz
+-   `quiz_attempts`: Student attempt history
+-   `learning_materials`: Study content
+-   `material_categories`: Categories for content
 
-- **Vercel** (Direkomendasikan)
-- **Netlify**
-- **GitHub Pages**
+> **Note**: If you encounter missing table errors, please refer to the `migration_guide.md` (if available) or check the source code for schema definitions.
 
-> **Catatan:** Pastikan domain production Anda sudah didaftarkan di **Firebase Console** > **Authentication** > **Settings** > **Authorized Domains** agar fitur login tetap berjalan lancar.
+## Project Structure
 
----
-
-<div align="center">
-
-Dibuat dengan ❤️ untuk pembelajaran Bahasa Jepang.
-  
-</div>
+-   `app/dashboard/admin`: Admin dashboard pages and components.
+-   `app/dashboard/user`: User/Student dashboard pages.
+-   `public/soal/soal1`: Interactive quiz (client-side app).
+-   `components`: Reusable UI components.
+-   `lib`: Supabase client configuration.

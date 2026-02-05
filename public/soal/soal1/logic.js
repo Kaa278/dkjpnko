@@ -155,6 +155,13 @@ window.handleAuth = async function () {
         msg.style.color = "red";
         // Customize error message as requested
         msg.innerText = "Akun belum ada, silakan buat akun terlebih dahulu.";
+
+        // Auto-switch to register if currently in login mode
+        if (!isRegisterParams) {
+            setTimeout(() => {
+                window.toggleAuthMode();
+            }, 1500);
+        }
     }
 };
 

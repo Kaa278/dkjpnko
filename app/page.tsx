@@ -410,7 +410,7 @@ export default function Home() {
             <span className="text-xs font-bold bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full uppercase tracking-wider">2026</span>
           </div>
           <p className="mt-4 text-sm font-medium opacity-80 max-w-xl mx-auto">
-            Landing page ini pure HTML + Tailwind + JS. Siap kamu lanjut bikin halaman <span className="text-slate-200">/user</span> dan <span className="text-slate-200">/admin</span>.
+           
           </p>
           <div className="mt-6 flex justify-center gap-6 text-sm font-semibold">
             <a href="#features" className="hover:text-white transition">Fitur</a>

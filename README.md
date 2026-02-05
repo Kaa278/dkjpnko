@@ -1,69 +1,89 @@
-# DKotoba Kuis
+<div align="center">
 
-A quiz and learning management dashboard for Japanese language learners (N5 level). Built with **Next.js 14**, **Tailwind CSS**, and **Supabase**.
+# 🇯🇵 DKotoba Kuis
 
-## Features
+**Advanced Japanese Learning Dashboard & Quiz Platform**
+<br>
+*Master N5 Vocabulary with interactive quizzes and real-time tracking.*
 
-### 🔹 Admin Dashboard
--   **Overview**: View statistics (Total Students, Quizzes, Active Quizzes).
--   **Activity Tracking**: Monitor daily quiz attempts and weekly activity charts.
--   **Leaderboard**: View top students based on quiz scores and speed.
--   **Content Management**: Manage quizzes, questions, and learning materials.
--   **Student Management**: View and manage enrolled students.
+![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
+![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E?style=for-the-badge&logo=supabase)
+![TypeScript](https://img.shields.io/badge/TypeScript-Pro-3178C6?style=for-the-badge&logo=typescript)
 
-### 🔹 Student Features
--   **Quiz Data**: Static quiz interface (legacy support) linked to the main dashboard.
--   **Score Tracking**: Scores are automatically saved to the Supabase database.
+</div>
 
-## Tech Stack
--   **Framework**: Next.js 14 (App Router)
--   **Styling**: Tailwind CSS
--   **Database**: Supabase (PostgreSQL)
--   **Auth**: Supabase Auth
--   **Icons**: Heroicons
--   **Charts**: Recharts
+---
 
-## Setup & Installation
+## ✨ Overview
 
-1.  **Clone the repository**
+**DKotoba Kuis** is a comprehensive e-learning platform designed for Japanese language students. It combines a modern, responsive **Admin Dashboard** for teachers with an engaging **Interactive Quiz Interface** for students.
+
+Built with performance and scalability in mind using **Next.js 14** and **Supabase**.
+
+## 🚀 Key Features
+
+### 👑 For Administrators
+*   **📊 Real-time Dashboard**: Live monitoring of student activities and quiz attempts.
+*   **📈 Analytics & Charts**: Weekly stats, average scores, and popular quizzes visualized.
+*   **🏆 Leaderboard System**: Track top-performing students globally or per quiz.
+*   **📚 Content Management**: Easily create quizzes, manage questions, and organize study materials.
+
+### 🎓 For Students
+*   **⚡ Interactive Quizzes**: Fast, engaging Javascript-based quizzes (supports legacy & modern).
+*   **💾 Auto-Save**: Scores and progress are automatically saved to the cloud.
+*   **📱 Mobile Friendly**: Optimized for learning on the go.
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Framework** | Next.js 14 (App Router) |
+| **Styling** | Tailwind CSS + Heroicons |
+| **Database** | Supabase (PostgreSQL) |
+| **Auth** | Supabase Auth |
+| **Visualization** | Recharts |
+
+## 📂 Project Structure
+
+```bash
+├── 📁 app
+│   ├── 📂 dashboard/admin  # Admin Portal logic
+│   └── 📂 dashboard/user   # Student Portal logic
+├── 📁 components           # Reusable UI Blocks (Sidebar, Charts)
+├── 📁 lib                  # Supabase Client Config
+└── 📁 public/soal          # Static Quiz Modules (Client-side)
+```
+
+## ⚡ Getting Started
+
+1.  **Clone the Repository**
     ```bash
-    git clone https://github.com/Kaa278/dkotoba_kuis.git
-    cd dkotoba_kuis
+    git clone https://github.com/Kaa278/dkjpnko.git
+    cd dkotobakuis
     ```
 
-2.  **Install dependencies**
+2.  **Install Dependencies**
     ```bash
     npm install
     ```
 
-3.  **Environment Variables**
-    Create a `.env.local` file and add your Supabase credentials:
+3.  **Configure Environment**
+    Create `.env.local` and add your keys:
     ```env
-    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    NEXT_PUBLIC_SUPABASE_URL=your_project_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
     ```
 
-4.  **Run Development Server**
+4.  **Launch**
     ```bash
     npm run dev
     ```
 
-## Database Schema
+---
 
-Ensure your Supabase database has the required tables:
--   `profiles`: Users/Admins
--   `quizzes`: Quiz metadata
--   `quiz_questions`: Questions for each quiz
--   `quiz_attempts`: Student attempt history
--   `learning_materials`: Study content
--   `material_categories`: Categories for content
+<div align="center">
 
-> **Note**: If you encounter missing table errors, please refer to the `migration_guide.md` (if available) or check the source code for schema definitions.
+Made with ❤️ by **DKotoba Team**
 
-## Project Structure
-
--   `app/dashboard/admin`: Admin dashboard pages and components.
--   `app/dashboard/user`: User/Student dashboard pages.
--   `public/soal/soal1`: Interactive quiz (client-side app).
--   `components`: Reusable UI components.
--   `lib`: Supabase client configuration.
+</div>

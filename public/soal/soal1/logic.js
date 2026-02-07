@@ -229,11 +229,25 @@ function checkAnswer(btn, selected, correct) {
     });
 
 
-    setTimeout(() => {
-        currentQ++;
-        loadQuestion();
-    }, 500);
+    // Show Next Button
+    const nextBtnContainer = document.getElementById('next-btn-container');
+    const nextBtn = nextBtnContainer.querySelector('button');
+
+    if (currentQ === questions.length - 1) {
+        nextBtn.innerText = "Selesai ✨";
+    } else {
+        nextBtn.innerText = "Lanjut ➡";
+    }
+
+    nextBtnContainer.style.display = 'block';
+    nextBtnContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
+
+window.nextQuestion = function () {
+    document.getElementById('next-btn-container').style.display = 'none';
+    currentQ++;
+    loadQuestion();
+};
 
 function startTimer() {
     const timerEl = document.getElementById('timer');

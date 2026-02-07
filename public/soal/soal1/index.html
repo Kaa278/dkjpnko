@@ -41,14 +41,17 @@
         <!-- Start Screen -->
         <div id="start-screen" class="start-screen" style="display: none;">
             <div style="margin-bottom: 24px;">
-                <span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 800;">LATIHAN N5</span>
+                <span
+                    style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 800;">LATIHAN
+                    N5</span>
             </div>
             <h2 style="margin-bottom: 12px; font-size: 1.8rem; color: #1e293b;">Hiragana Kotoba</h2>
             <p style="color: #64748b; margin-bottom: 32px; line-height: 1.6;">
                 Tebak arti kata dari <b style="color:#4f46e5">Hiragana</b> yang muncul. <br> 10 soal • Otomatis simpan.
             </p>
-            
-            <button class="btn-primary" onclick="startQuiz()" style="width: 100%; font-size: 1.1rem; margin-bottom: 16px;">
+
+            <button class="btn-primary" onclick="startQuiz()"
+                style="width: 100%; font-size: 1.1rem; margin-bottom: 16px;">
                 Mulai Quiz ✨
             </button>
 
@@ -83,6 +86,10 @@
             <div id="options-grid" class="options-grid">
                 <!-- Options will be injected here -->
             </div>
+
+            <div id="next-btn-container" style="display: none; padding: 0 24px 32px;">
+                <button onclick="nextQuestion()" class="btn-primary" style="width: 100%; margin: 0;">Lanjut ➡</button>
+            </div>
         </div>
 
         <!-- Result Screen (Hidden) -->
@@ -107,7 +114,7 @@
             </a>
 
             <!-- WA Promo Footer -->
-             <a href="https://whatsapp.com/channel/0029VbCvOCSEKyZGVeLnCg3V" target="_blank" 
+            <a href="https://whatsapp.com/channel/0029VbCvOCSEKyZGVeLnCg3V" target="_blank"
                 style="display: block; margin-top: 24px; color: #16a34a; font-weight: 700; text-decoration: none; font-size: 0.85rem;">
                 📲 Gabung Channel WhatsApp Kami
             </a>
@@ -116,7 +123,8 @@
         <!-- Review Screen (Hidden) -->
         <div id="review-screen" style="display: none; padding: 24px;">
             <h3 style="text-align: center; margin-bottom: 20px;">Review Jawaban</h3>
-            <div id="review-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto;">
+            <div id="review-list"
+                style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto;">
                 <!-- Items injected here -->
             </div>
             <button class="btn-primary" onclick="location.reload()" style="margin-top: 24px; width: 100%;">Tutup /

@@ -86,12 +86,18 @@ window.handleAuth = async function () {
     const passIn = document.getElementById('auth-password').value;
     const nameIn = document.getElementById('auth-fullname').value.trim();
     const msg = document.getElementById('auth-msg');
+    const btn = document.getElementById('auth-btn');
 
     msg.innerText = "";
     if (!userIn || !passIn) {
         msg.innerText = "Mohon isi username dan password.";
         return;
     }
+
+    // Set Loading State
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Memproses...';
 
 
     const email = `${userIn.toLowerCase().replace(/[^a-z0-9]/g, '')}@example.com`;
@@ -101,10 +107,12 @@ window.handleAuth = async function () {
 
             if (!nameIn) {
                 msg.innerText = "Mohon isi nama lengkap.";
+                resetBtn();
                 return;
             }
             if (passIn.length < 6) {
                 msg.innerText = "Password minimal 6 karakter.";
+                resetBtn();
                 return;
             }
 
@@ -126,7 +134,10 @@ window.handleAuth = async function () {
 
                 msg.style.color = "green";
                 msg.innerText = "Berhasil! Silakan masuk.";
-                setTimeout(() => window.toggleAuthMode(), 1000);
+                setTimeout(() => {
+                    window.toggleAuthMode();
+                    resetBtn();
+                }, 1000);
             }
 
         } else {
@@ -147,6 +158,7 @@ window.handleAuth = async function () {
                     USER_ID = data.user.id;
                     document.getElementById('auth-modal').style.display = "none";
                     document.getElementById('start-screen').style.display = "block";
+                    resetBtn();
                 }, 1500);
             }
         }
@@ -160,8 +172,16 @@ window.handleAuth = async function () {
         if (!isRegisterParams) {
             setTimeout(() => {
                 window.toggleAuthMode();
+                resetBtn();
             }, 1500);
+        } else {
+            resetBtn();
         }
+    }
+
+    function resetBtn() {
+        btn.disabled = false;
+        btn.innerText = originalText;
     }
 };
 
@@ -181,11 +201,15 @@ function startQuiz() {
     startTimer();
 }
 
+let selectedAnswer = null;
+
 function loadQuestion() {
     if (currentQ >= questions.length) {
         finishQuiz();
         return;
     }
+
+    selectedAnswer = null; // Reset selection
 
     const data = questions[currentQ];
     document.getElementById('q-counter').innerText = `${currentQ + 1} / ${questions.length}`;
@@ -203,51 +227,55 @@ function loadQuestion() {
         const btn = document.createElement('button');
         btn.className = 'option-btn';
         btn.innerText = opt;
-        btn.onclick = () => checkAnswer(btn, opt, data.a);
+        btn.onclick = () => selectOption(btn, opt);
         grid.appendChild(btn);
     });
-}
 
-function checkAnswer(btn, selected, correct) {
-    const btns = document.querySelectorAll('.option-btn');
-    btns.forEach(b => b.disabled = true);
-
-
-    btn.style.background = "#e0e7ff";
-    btn.style.borderColor = "#6366f1";
-    btn.style.color = "#4338ca";
-
-
-    const isCorrect = selected === correct;
-    if (isCorrect) score++;
-
-    userAnswers.push({
-        question: questions[currentQ].q,
-        correct: correct,
-        selected: selected,
-        isCorrect: isCorrect
-    });
-
-
-    // Show Next Button
+    // Reset and Hide Next Button initially
     const nextBtnContainer = document.getElementById('next-btn-container');
     const nextBtn = nextBtnContainer.querySelector('button');
+    nextBtn.disabled = true; // Disable until selection
+    nextBtn.innerText = (currentQ === questions.length - 1) ? "Selesai ✨" : "Lanjut ➡";
 
-    if (currentQ === questions.length - 1) {
-        nextBtn.innerText = "Selesai ✨";
-    } else {
-        nextBtn.innerText = "Lanjut ➡";
-    }
-
+    // Make sure container is visible but button disabled
     nextBtnContainer.style.display = 'block';
-    nextBtnContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function selectOption(btn, opt) {
+    // Visual update
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+
+    // Store selection
+    selectedAnswer = opt;
+
+    // Enable Next Button
+    const nextBtn = document.querySelector('#next-btn-container button');
+    nextBtn.disabled = false;
 }
 
 window.nextQuestion = function () {
-    document.getElementById('next-btn-container').style.display = 'none';
+    if (!selectedAnswer) return; // Should be disabled anyway
+
+    const currentData = questions[currentQ];
+    const isCorrect = selectedAnswer === currentData.a;
+
+    if (isCorrect) score++;
+
+    userAnswers.push({
+        question: currentData.q,
+        correct: currentData.a,
+        selected: selectedAnswer,
+        isCorrect: isCorrect
+    });
+
+    document.getElementById('next-btn-container').style.display = 'none'; // Hide briefly during transition if needed, or keep for transition
     currentQ++;
     loadQuestion();
 };
+
+
 
 function startTimer() {
     const timerEl = document.getElementById('timer');
@@ -281,9 +309,26 @@ async function finishQuiz() {
         return;
     }
 
-    resultText.innerText = "Menyimpan ke Dashboard...";
+    resultText.innerText = "Memproses skor...";
 
     try {
+        // 1. Check if already attempted
+        const { data: existing, error: checkError } = await supabaseClient
+            .from('quiz_attempts')
+            .select('id')
+            .eq('user_id', USER_ID)
+            .eq('quiz_id', SERVER_QUIZ_ID);
+
+        if (checkError) throw checkError;
+
+        if (existing && existing.length > 0) {
+            resultText.innerText = "Skor tidak disimpan (Anda sudah pernah mengerjakan).";
+            resultText.style.color = "#f59e0b";
+            return;
+        }
+
+        // 2. Insert if new
+        resultText.innerText = "Menyimpan ke Dashboard...";
         const { error } = await supabaseClient
             .from('quiz_attempts')
             .insert([
@@ -304,7 +349,7 @@ async function finishQuiz() {
 
     } catch (err) {
         console.error(err);
-        resultText.innerText = "Gagal menyimpan skor. Cek koneksi.";
+        resultText.innerText = "Gagal memproses data. Cek koneksi.";
         resultText.style.color = "#dc2626";
     }
 }
@@ -319,21 +364,18 @@ window.showReview = function () {
 
     userAnswers.forEach((ans, idx) => {
         const item = document.createElement('div');
-        item.style.padding = "16px";
-        item.style.borderRadius = "12px";
-        item.style.background = "#f8fafc";
-        item.style.border = "1px solid #e2e8f0";
+        item.className = 'review-item';
 
         const statusColor = ans.isCorrect ? "#16a34a" : "#dc2626";
         const statusText = ans.isCorrect ? "Benar" : "Salah";
 
         item.innerHTML = `
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                <span style="font-weight:bold; color:#64748b;">No. ${idx + 1}</span>
-                <span style="font-weight:bold; color:${statusColor}">${statusText}</span>
+            <div class="review-header">
+                <span style="color:#64748b;">No. ${idx + 1}</span>
+                <span style="color:${statusColor}">${statusText}</span>
             </div>
-            <div style="font-size:1.2rem; font-weight:bold; margin-bottom:8px;">${ans.question}</div>
-            <div style="font-size:0.9rem; color:#475569;">
+            <div class="review-question">${ans.question}</div>
+            <div class="review-answer">
                 Jawaban Anda: <span style="font-weight:bold; color:${ans.isCorrect ? '#16a34a' : '#dc2626'}">${ans.selected}</span>
                 ${!ans.isCorrect ? `<br>Jawaban Benar: <span style="font-weight:bold; color:#16a34a">${ans.correct}</span>` : ''}
             </div>

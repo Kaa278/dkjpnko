@@ -11,6 +11,11 @@ const plusJakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "DKotoba - Belajar Jepang Seru",
   description: "Platform belajar Bahasa Jepang interaktif dengan kuis dan materi.",
+  icons: {
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
+    apple: '/logo.svg',
+  },
 };
 
 export default function RootLayout({

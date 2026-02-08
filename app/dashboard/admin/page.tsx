@@ -279,8 +279,6 @@ export default function AdminDashboard() {
     const [quizCreationMode, setQuizCreationMode] = useState<"external" | "manual" | null>(null);
 
     // Modals
-    const [quizModalOpen, setQuizModalOpen] = useState(false);
-    const [quizModalMode, setQuizModalMode] = useState<"add" | "edit">("add");
 
     const [quizForm, setQuizForm] = useState({
         id: "",
@@ -874,39 +872,27 @@ export default function AdminDashboard() {
     }, [quizSearchQuery, levelFilter, statusFilter, quizList]);
 
     // Quiz CRUD
-    const openQuizModal = (mode: "add" | "edit", quiz?: Quiz) => {
-        setQuizModalMode(mode);
+    const handleEditQuiz = (quiz: Quiz) => {
+        setQuizForm({
+            id: quiz.id,
+            title: quiz.title,
+            description: quiz.description || "",
+            external_link: quiz.external_link || "",
+            level: (quiz.level || "N5").toUpperCase(),
+            time_limit: quiz.time_limit || 0,
+            deadline_at: quiz.deadline_at
+                ? new Date(quiz.deadline_at).toISOString().slice(0, 16)
+                : "",
+            is_active: quiz.is_active,
+            total_questions: quiz.total_questions || 0,
+        });
 
-        if (quiz) {
-            setQuizForm({
-                id: quiz.id,
-                title: quiz.title,
-                description: quiz.description || "",
-                external_link: quiz.external_link || "",
-                level: (quiz.level || "N5").toUpperCase(),
-                time_limit: quiz.time_limit || 0,
-                deadline_at: quiz.deadline_at
-                    ? new Date(quiz.deadline_at).toISOString().slice(0, 16)
-                    : "",
-                is_active: quiz.is_active,
-                total_questions: quiz.total_questions || 0,
-            });
-        } else {
-            setQuizForm({
-                id: "",
-                title: "",
-                description: "",
-                external_link: "",
-                level: "N5",
-                time_limit: 0,
-                deadline_at: "",
-                is_active: true,
-                total_questions: 0,
-            });
-        }
-
-        setQuizModalOpen(true);
+        setActiveQuizId(quiz.id);
+        const mode = quiz.external_link ? "external" : "manual";
+        setQuizCreationMode(mode);
+        setCurrentView("kuis-buat");
     };
+
 
     const saveQuiz = async () => {
         try {
@@ -925,7 +911,8 @@ export default function AdminDashboard() {
                 total_questions: Number(quizForm.total_questions) || 0,
             };
 
-            if (quizModalMode === "add" && !quizForm.id) {
+            // Logic baru: Cek ID di form. Jika kosong -> Add, jika ada -> Update
+            if (!quizForm.id) {
                 const newId = `quiz-${Date.now()}`;
                 const { error } = await supabase.from("quizzes").insert([{ id: newId, ...quizData }]);
                 if (error) throw error;
@@ -941,7 +928,9 @@ export default function AdminDashboard() {
             }
 
             await fetchAllData();
-            setQuizModalOpen(false);
+            // Redirect ke daftar kuis
+            setCurrentView("kuis-daftar");
+            // Reset form jika perlu (opsional, karena navigateToSubmenu akan reset saat pindah menu)
         } catch (e: any) {
             showNotification("error", e.message || "Gagal menyimpan kuis");
         }
@@ -1860,6 +1849,26 @@ export default function AdminDashboard() {
                                                         {quiz.description || "Tidak ada deskripsi"}
                                                     </p>
 
+                                                    {/* Link Display */}
+                                                    <div className="mb-3 flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100 max-w-md">
+                                                        <div className="bg-white p-1 rounded border border-slate-200">
+                                                            <LinkIcon className="w-3 h-3 text-slate-400" />
+                                                        </div>
+                                                        <span className="text-xs text-slate-500 font-mono flex-1 truncate select-all">
+                                                            {quiz.external_link || `${typeof window !== 'undefined' ? window.location.origin : ''}/quiz/${quiz.id}`}
+                                                        </span>
+                                                        <button
+                                                            onClick={() => {
+                                                                const link = quiz.external_link || `${window.location.origin}/quiz/${quiz.id}`;
+                                                                navigator.clipboard.writeText(link);
+                                                                showNotification("success", "Link disalin!");
+                                                            }}
+                                                            className="text-xs font-bold text-blue-600 hover:text-blue-700 px-2 py-1 hover:bg-blue-50 rounded transition-colors"
+                                                        >
+                                                            Salin
+                                                        </button>
+                                                    </div>
+
                                                     <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-400 uppercase">
 
                                                         {quiz.deadline_at && (
@@ -1890,7 +1899,7 @@ export default function AdminDashboard() {
                                                     </button>
 
                                                     <button
-                                                        onClick={() => openQuizModal("edit", quiz)}
+                                                        onClick={() => handleEditQuiz(quiz)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                                         title="Edit"
                                                     >
@@ -2010,6 +2019,19 @@ export default function AdminDashboard() {
                                                     placeholder="Contoh: Latihan N5 - Partikel"
                                                     value={quizForm.title}
                                                     onChange={(e) => setQuizForm({ ...quizForm, title: e.target.value })}
+                                                    className="w-full p-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 ring-blue-500 font-medium"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-bold text-slate-700 mb-2">
+                                                    Deskripsi
+                                                </label>
+                                                <textarea
+                                                    rows={2}
+                                                    placeholder="Deskripsi singkat materi..."
+                                                    value={quizForm.description || ""}
+                                                    onChange={(e) => setQuizForm({ ...quizForm, description: e.target.value })}
                                                     className="w-full p-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 ring-blue-500 font-medium"
                                                 />
                                             </div>
@@ -3927,132 +3949,6 @@ export default function AdminDashboard() {
             </div>
 
             { }
-            {quizModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-                        <h3 className="text-2xl font-bold mb-6">
-                            {quizModalMode === "add" ? "Buat Kuis Baru" : "Edit Kuis"}
-                        </h3>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">
-                                    Judul Kuis *
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="Contoh: Latihan N5 - Hiragana Dasar"
-                                    value={quizForm.title}
-                                    onChange={(e) =>
-                                        setQuizForm({ ...quizForm, title: e.target.value })
-                                    }
-                                    className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">
-                                    Deskripsi
-                                </label>
-                                <textarea
-                                    placeholder="Deskripsi singkat tentang kuis ini..."
-                                    value={quizForm.description}
-                                    onChange={(e) =>
-                                        setQuizForm({ ...quizForm, description: e.target.value })
-                                    }
-                                    className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-blue-500"
-                                    rows={3}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-2">
-                                        Level
-                                    </label>
-                                    <select
-                                        value={quizForm.level}
-                                        onChange={(e) =>
-                                            setQuizForm({ ...quizForm, level: e.target.value })
-                                        }
-                                        className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-blue-500"
-                                    >
-                                        <option value="N5">N5</option>
-                                        <option value="N4">N4</option>
-                                        <option value="N3">N3</option>
-                                        <option value="N2">N2</option>
-                                        <option value="N1">N1</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">
-                                    Deadline (Opsional)
-                                </label>
-                                <input
-                                    type="datetime-local"
-                                    value={quizForm.deadline_at}
-                                    onChange={(e) =>
-                                        setQuizForm({ ...quizForm, deadline_at: e.target.value })
-                                    }
-                                    className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">
-                                    Jumlah Soal (Total)
-                                </label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    placeholder="0"
-                                    value={quizForm.total_questions || ""}
-                                    onChange={(e) =>
-                                        setQuizForm({ ...quizForm, total_questions: parseInt(e.target.value) || 0 })
-                                    }
-                                    className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 ring-blue-500"
-                                />
-                            </div>
-
-                            <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
-                                <input
-                                    type="checkbox"
-                                    id="is_active"
-                                    checked={quizForm.is_active}
-                                    onChange={(e) =>
-                                        setQuizForm({ ...quizForm, is_active: e.target.checked })
-                                    }
-                                    className="w-5 h-5 text-blue-600 rounded"
-                                />
-                                <label
-                                    htmlFor="is_active"
-                                    className="font-bold text-slate-700 cursor-pointer"
-                                >
-                                    Publish kuis (aktifkan untuk siswa)
-                                </label>
-                            </div>
-
-                            <div className="flex gap-3 pt-4">
-                                <button
-                                    onClick={() => setQuizModalOpen(false)}
-                                    className="flex-1 py-3 font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
-                                >
-                                    Batal
-                                </button>
-                                <button
-                                    onClick={saveQuiz}
-                                    className="flex-1 py-3 font-bold bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30"
-                                >
-                                    {quizModalMode === "add" ? "Buat Kuis" : "Simpan Perubahan"}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )
-            }
 
             { }
             {

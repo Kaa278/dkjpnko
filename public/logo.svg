@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Solid Blue Background with softer radius for max area -->
+  <rect width="100" height="100" rx="20" fill="#2563EB" />
+  
+  <!-- Very Bold White "D" / Speech Bubble Shape -->
+  <!-- Filling central area: approx 20 padding -->
+  <path d="M30 25 H60 C76.5685 25 90 38.4315 90 55 C90 71.5685 76.5685 85 60 85 H30 V25 Z" fill="white" />
+  
+  <!-- Inner Blue "Void" to define the D shape clearly -->
+  <path d="M48 43 V67 H60 C66.6274 67 72 61.6274 72 55 C72 48.3726 66.6274 43 60 43 H48 Z" fill="#2563EB" />
+</svg>

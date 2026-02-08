@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Link from "next/link";
+import NextImage from "next/image";
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,7 +12,7 @@ export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [demoScore, setDemoScore] = useState(0);
 
-  
+
   const [isDemoOpen, setIsDemoOpen] = useState(false);
   const [qIndex, setQIndex] = useState(0);
   const [qScore, setQScore] = useState(0);
@@ -59,7 +60,7 @@ export default function Home() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
 
-    
+
     const blobA = document.getElementById("blobA");
     const blobB = document.getElementById("blobB");
 
@@ -74,7 +75,7 @@ export default function Home() {
     };
     window.addEventListener("mousemove", moveBlobs, { passive: true });
 
-    
+
     const scoreInterval = setInterval(() => {
       setDemoScore((prev) => (prev + 1) % 4);
     }, 1500);
@@ -101,7 +102,7 @@ export default function Home() {
       setSelectedOption(null);
       setShowExplain(false);
     } else {
-      
+
       alert(`Selesai! Skor kamu: ${qScore + (selectedOption === demoQuiz[qIndex].correct ? 0 : 0)} / ${demoQuiz.length}`);
       setIsDemoOpen(false);
       resetDemo();
@@ -118,25 +119,28 @@ export default function Home() {
   return (
     <div className="bg-slate-50 text-slate-900 antialiased selection:bg-blue-600 selection:text-white overflow-x-hidden relative font-sans">
 
-      {}
+      { }
       <div
         className="fixed top-0 left-0 h-[3px] z-[9999] bg-gradient-to-r from-blue-600 to-blue-800 shadow-[0_0_10px_rgba(37,99,235,0.5)] transition-all ease-out"
         style={{ width: `${scrollProgress}%` }}
       ></div>
 
-      {}
+      { }
       <div className="fixed inset-0 z-0 opacity-[0.06] mix-blend-multiply pointer-events-none" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/asfalt-dark.png")' }}></div>
 
-      {}
+      { }
       <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: -1 }}>
         <div id="blobA" className="absolute w-72 h-72 md:w-[520px] md:h-[520px] bg-blue-200 rounded-full top-[-50px] md:top-[-120px] left-[-50px] md:left-[-140px] mix-blend-multiply blur-[50px] opacity-40 transition-transform duration-100 ease-out"></div>
         <div id="blobB" className="absolute w-80 h-80 md:w-[540px] md:h-[540px] bg-slate-200 rounded-full bottom-[-50px] md:bottom-[-140px] right-[-50px] md:right-[-140px] mix-blend-multiply blur-[50px] opacity-40 transition-transform duration-100 ease-out"></div>
       </div>
 
-      {}
+      { }
       <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'glass shadow-lg shadow-blue-500/5' : 'glass border-transparent bg-transparent'}`}>
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
           <Link href="/" className="text-2xl font-black tracking-tighter flex items-center gap-2 text-slate-800">
+            <div className="relative w-8 h-8">
+              <NextImage src="/logo.svg" alt="DKotoba Logo" fill className="object-contain" />
+            </div>
             <span className="text-blue-600">DKotoba</span>
           </Link>
 
@@ -157,7 +161,7 @@ export default function Home() {
               Mulai Belajar
             </Link>
 
-            {}
+            { }
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden w-11 h-11 rounded-full border border-slate-200 bg-white/80 hover:bg-white transition flex items-center justify-center text-slate-700"
@@ -171,7 +175,7 @@ export default function Home() {
           </div>
         </div>
 
-        {}
+        { }
         {isMenuOpen && (
           <div className="md:hidden border-t border-slate-200/70 bg-white/75 backdrop-blur-xl animate-fade-in-down">
             <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
@@ -188,7 +192,7 @@ export default function Home() {
         )}
       </nav>
 
-      {}
+      { }
       <section className="min-h-[92vh] flex items-center pt-28 pb-12 relative">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-12">
           <div className="flex-1 text-center md:text-left z-10">
@@ -209,7 +213,7 @@ export default function Home() {
               Minim distraksi, fokus naik level setiap hari.
             </p>
 
-            {}
+            { }
             <div data-aos="fade-up" data-aos-delay="260" className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start mb-8">
               {[
                 { icon: 'N5', title: 'Track Pemula', desc: 'Mulai dari dasar' },
@@ -242,7 +246,7 @@ export default function Home() {
             </p>
           </div>
 
-          {}
+          { }
           <div className="hidden md:block flex-1 relative" data-aos="zoom-in" data-aos-duration="1000">
             <div className="relative w-full max-w-md mx-auto aspect-square">
               <div className="absolute -inset-6 rounded-[3rem] bg-blue-200/40 blur-2xl"></div>
@@ -253,7 +257,7 @@ export default function Home() {
                   <h3 className="text-3xl font-bold font-[Noto_Sans_JP] mb-2 text-slate-800">日本語</h3>
                   <p className="text-slate-500 font-medium">Bahasa Jepang</p>
 
-                  {}
+                  { }
                   <div className="mt-8 text-left">
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Mini Quiz</p>
@@ -281,7 +285,7 @@ export default function Home() {
         </div>
       </section>
 
-      {}
+      { }
       <section id="features" className="py-20 bg-white relative">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center mb-12" data-aos="fade-up">
@@ -308,7 +312,7 @@ export default function Home() {
             ))}
           </div>
 
-          {}
+          { }
           <div className="mt-10 max-w-5xl mx-auto" data-aos="fade-up" data-aos-delay="150">
             <div className="glass rounded-3xl p-6 md:p-7 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
               <div>
@@ -325,7 +329,7 @@ export default function Home() {
         </div>
       </section>
 
-      {}
+      { }
       <section id="how" className="py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center mb-12" data-aos="fade-up">
@@ -358,7 +362,7 @@ export default function Home() {
         </div>
       </section>
 
-      {}
+      { }
       <section id="testi" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center mb-12" data-aos="fade-up">
@@ -384,7 +388,7 @@ export default function Home() {
             ))}
           </div>
 
-          {}
+          { }
           <div className="mt-12 max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="120">
             <div className="rounded-[2rem] bg-slate-900 text-white p-10 relative overflow-hidden">
               <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-blue-600/25 blur-2xl"></div>
@@ -402,7 +406,7 @@ export default function Home() {
         </div>
       </section>
 
-      {}
+      { }
       <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 relative">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-2">
@@ -410,7 +414,7 @@ export default function Home() {
             <span className="text-xs font-bold bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full uppercase tracking-wider">2026</span>
           </div>
           <p className="mt-4 text-sm font-medium opacity-80 max-w-xl mx-auto">
-           
+
           </p>
           <div className="mt-6 flex justify-center gap-6 text-sm font-semibold">
             <a href="#features" className="hover:text-white transition">Fitur</a>
@@ -421,7 +425,7 @@ export default function Home() {
         </div>
       </footer>
 
-      {}
+      { }
       {isDemoOpen && (
         <div className="fixed inset-0 z-[9998] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsDemoOpen(false)}></div>

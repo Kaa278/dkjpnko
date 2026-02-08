@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import NextImage from "next/image";
 import { usePathname } from "next/navigation";
 import {
     HomeIcon,
@@ -35,8 +36,8 @@ export default function Sidebar({ currentView, setCurrentView }: { currentView: 
             <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600">
                 <div className="flex items-center gap-3">
                     <div className="relative">
-                        <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                            <span className="text-xl font-black text-white">D</span>
+                        <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden">
+                            <NextImage src="/logo.svg" alt="DKotoba Logo" width={40} height={40} className="w-full h-full object-contain p-1" />
                         </div>
                     </div>
                     <div>
@@ -52,8 +53,8 @@ export default function Sidebar({ currentView, setCurrentView }: { currentView: 
                         key={item.id}
                         onClick={() => setCurrentView(item.id)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${currentView === item.id
-                                ? 'bg-blue-50 text-blue-600 font-bold'
-                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium'
+                            ? 'bg-blue-50 text-blue-600 font-bold'
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium'
                             }`}
                     >
                         <item.icon className={`w-6 h-6 ${currentView === item.id ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
@@ -69,8 +70,8 @@ export default function Sidebar({ currentView, setCurrentView }: { currentView: 
                 <button
                     onClick={() => setCurrentView('setting')}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${currentView === 'setting'
-                            ? 'bg-blue-50 text-blue-600 font-bold'
-                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium'
+                        ? 'bg-blue-50 text-blue-600 font-bold'
+                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium'
                         }`}
                 >
                     <UserIcon className="w-5 h-5" />

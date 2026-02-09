@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 function AuthContent() {
@@ -20,8 +21,8 @@ function AuthContent() {
         if (mode === "register") setIsRegister(true);
     }, [searchParams]);
 
-    
-    
+
+
     const getEmail = (user: string) => `${user.toLowerCase().replace(/[^a-z0-9]/g, '')}@example.com`;
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +32,7 @@ function AuthContent() {
         setIsLoading(true);
 
         try {
-            
+
             const cleanUsername = username.replace(/\s/g, '');
             if (!/^[a-zA-Z0-9_]+$/.test(cleanUsername)) {
                 setErrorMsg("Username hanya boleh huruf, angka, dan underscore.");
@@ -40,7 +41,7 @@ function AuthContent() {
             }
 
             if (isRegister) {
-                
+
                 if (!cleanUsername || !password || !fullname) {
                     setErrorMsg("Mohon isi semua data.");
                     setIsLoading(false);
@@ -62,14 +63,14 @@ function AuthContent() {
                         data: {
                             username: cleanUsername,
                             full_name: fullname,
-                            role: "user", 
-                            password: password, 
+                            role: "user",
+                            password: password,
                         },
                     },
                 });
 
                 if (error) {
-                    
+
                     if (error.message.includes("already registered")) throw new Error("Username sudah terpakai.");
                     if (error.message.includes("invalid")) throw new Error("Format username tidak diterima sistem.");
                     throw new Error(error.message);
@@ -86,7 +87,7 @@ function AuthContent() {
                     }, 1500);
                 }
             } else {
-                
+
                 if (!cleanUsername || !password) {
                     setErrorMsg("Mohon isi username dan password.");
                     setIsLoading(false);
@@ -110,7 +111,7 @@ function AuthContent() {
                 if (data.user) {
                     setSuccessMsg("Login berhasil! Memeriksa akses...");
 
-                    
+
                     const { data: profile, error: profileError } = await supabase
                         .from('profiles')
                         .select('role')
@@ -145,7 +146,7 @@ function AuthContent() {
 
     return (
         <div className="flex items-center justify-center min-h-screen p-4 md:p-6 bg-slate-50 relative overflow-hidden">
-            {}
+            { }
             <div className="fixed inset-0 pointer-events-none">
                 <div className="absolute top-0 left-0 w-full h-full bg-[#f8fafc]"></div>
                 <div className="absolute top-0 left-0 w-full h-full"
@@ -161,11 +162,22 @@ function AuthContent() {
                 ></div>
             </div>
 
+            {/* Back Button */}
+            <Link
+                href="/"
+                className="absolute top-4 left-4 md:top-8 md:left-8 z-20 flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-white/50 hover:bg-white shadow-sm"
+            >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span className="font-medium text-sm">Kembali</span>
+            </Link>
+
             <div className="w-full max-w-5xl bg-white/70 backdrop-blur-xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/50 flex flex-col md:flex-row min-h-[600px] relative z-10">
 
-                {}
+                { }
                 <div className="hidden md:flex md:w-1/2 bg-blue-600 relative p-12 flex-col justify-between text-white overflow-hidden group">
-                    {}
+                    { }
                     <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 opacity-70 group-hover:scale-110 transition-transform duration-[3s]"></div>
                     <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/2 opacity-70 group-hover:scale-110 transition-transform duration-[3s] delay-75"></div>
 
@@ -194,10 +206,10 @@ function AuthContent() {
                     </div>
                 </div>
 
-                {}
+                { }
                 <div className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center relative">
 
-                    {}
+                    { }
                     <div className="md:hidden flex flex-col items-center mb-8 text-center">
                         <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl mb-3 shadow-lg shadow-blue-500/30">
                             DK
@@ -205,7 +217,7 @@ function AuthContent() {
                         <h1 className="text-2xl font-black text-slate-800">DKotoba</h1>
                     </div>
 
-                    {}
+                    { }
                     <div className="mb-8 md:mb-10">
                         <h1 className="text-2xl md:text-3xl font-black text-slate-800 mb-2">
                             {isRegister ? 'Buat Akun Baru' : 'Selamat Datang Kembali!'}
@@ -215,10 +227,10 @@ function AuthContent() {
                         </p>
                     </div>
 
-                    {}
+                    { }
                     <form onSubmit={handleSubmit} className="space-y-5">
 
-                        {}
+                        { }
                         {errorMsg && (
                             <div className="p-4 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3 animate-fade-in">
                                 <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -237,7 +249,7 @@ function AuthContent() {
                             </div>
                         )}
 
-                        {}
+                        { }
                         {isRegister && (
                             <div className="animate-slide-up">
                                 <label className="block text-sm font-bold text-slate-700 mb-2">Nama Lengkap</label>
@@ -258,7 +270,7 @@ function AuthContent() {
                             </div>
                         )}
 
-                        {}
+                        { }
                         <div>
                             <label className="block text-sm font-bold text-slate-700 mb-2">Username</label>
                             <div className="relative">
@@ -278,7 +290,7 @@ function AuthContent() {
                             </div>
                         </div>
 
-                        {}
+                        { }
                         <div>
                             <div className="flex justify-between items-center mb-2">
                                 <label className="text-sm font-bold text-slate-700">Password</label>
@@ -303,7 +315,7 @@ function AuthContent() {
                             </div>
                         </div>
 
-                        {}
+                        { }
                         <button
                             type="submit"
                             disabled={isLoading}
@@ -321,7 +333,7 @@ function AuthContent() {
 
                     </form>
 
-                    {}
+                    { }
                     <div className="mt-8 text-center">
                         <p className="text-slate-500 font-medium">
                             {isRegister ? 'Sudah punya akun?' : 'Belum punya akun?'}

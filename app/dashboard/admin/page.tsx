@@ -44,7 +44,7 @@ import {
     ResponsiveContainer,
     Cell,
 } from "recharts";
-import { format, subDays, isSameDay } from "date-fns";
+import { format, subDays, isSameDay, parseISO } from "date-fns";
 import { id } from "date-fns/locale";
 
 type Notification = { type: "success" | "error"; message: string };
@@ -1125,10 +1125,25 @@ export default function AdminDashboard() {
 
     const dailyAttemptData = useMemo(() => {
         const days = Array.from({ length: 7 }, (_, i) => subDays(new Date(), 6 - i));
+
+        console.log('📈 Generating Graph Data:', {
+            totalAttempts: attempts.length,
+            sampleAttemptDate: attempts[0]?.created_at
+        });
+
         return days.map((day) => {
-            const count = attempts.filter((a) =>
-                isSameDay(new Date(a.created_at), day)
-            ).length;
+            const count = attempts.filter((a) => {
+                // Use completed_at instead of created_at for consistency with "Attempts Today"
+                if (!a.completed_at && !a.created_at) return false;
+
+                // Prefer completed_at, fallback to created_at
+                const timestamp = a.completed_at || a.created_at;
+
+                // Parse string timestamp to Date object consistently
+                const attemptDate = parseISO(timestamp);
+                return isSameDay(attemptDate, day);
+            }).length;
+
             return {
                 date: format(day, "dd MMM", { locale: id }),
                 attempts: count,
@@ -3470,24 +3485,41 @@ export default function AdminDashboard() {
                                             <BarChart
                                                 data={popularQuizzesData}
                                                 layout="vertical"
-                                                margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+                                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                                             >
-                                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                                                 <XAxis type="number" hide />
                                                 <YAxis
                                                     dataKey="title"
                                                     type="category"
                                                     width={150}
-                                                    tick={{ fill: '#64748b', fontSize: 12 }}
+                                                    tick={{ fill: '#475569', fontSize: 12, fontWeight: 600 }}
+                                                    axisLine={false}
+                                                    tickLine={false}
                                                 />
                                                 <Tooltip
-                                                    cursor={{ fill: '#f8fafc' }}
-                                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                                                    cursor={{ fill: '#f1f5f9', opacity: 0.4 }}
+                                                    contentStyle={{
+                                                        borderRadius: '16px',
+                                                        border: '1px solid #e2e8f0',
+                                                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                                        backdropFilter: 'blur(4px)',
+                                                        padding: '12px 16px'
+                                                    }}
+                                                    itemStyle={{ color: '#1e293b', fontWeight: 700 }}
+                                                    labelStyle={{ color: '#64748b', fontWeight: 600, marginBottom: '4px' }}
                                                 />
-                                                <Bar dataKey="total_attempt" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={20}>
-                                                    {popularQuizzesData.map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#1d4ed8' : '#3b82f6'} />
-                                                    ))}
+                                                <Bar
+                                                    dataKey="total_attempt"
+                                                    radius={[0, 10, 10, 0]}
+                                                    barSize={24}
+                                                    animationDuration={1000}
+                                                >
+                                                    {popularQuizzesData.map((entry, index) => {
+                                                        const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#0ea5e9', '#6366f1'];
+                                                        return <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />;
+                                                    })}
                                                 </Bar>
                                             </BarChart>
                                         </ResponsiveContainer>
@@ -3508,39 +3540,47 @@ export default function AdminDashboard() {
                                 <div className="flex-1 w-full min-h-0">
                                     <div className="h-[400px] w-full">
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <BarChart data={averageScoreData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                                <XAxis
-                                                    dataKey="name"
-                                                    axisLine={false}
-                                                    tickLine={false}
-                                                    tick={{ fill: '#64748b', fontSize: 9, fontWeight: 700 }}
-                                                    interval={0}
-                                                    angle={-15}
-                                                    textAnchor="end"
-                                                />
+                                            <BarChart
+                                                data={averageScoreData}
+                                                layout="vertical"
+                                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                                            >
+                                                <defs>
+                                                    <linearGradient id="avgScoreGradient" x1="0" y1="0" x2="1" y2="0">
+                                                        <stop offset="0%" stopColor="#10b981" />
+                                                        <stop offset="100%" stopColor="#14b8a6" />
+                                                    </linearGradient>
+                                                </defs>
+                                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                                                <XAxis type="number" domain={[0, 100]} hide />
                                                 <YAxis
+                                                    dataKey="name"
+                                                    type="category"
+                                                    width={150}
+                                                    tick={{ fill: '#475569', fontSize: 12, fontWeight: 600 }}
                                                     axisLine={false}
                                                     tickLine={false}
-                                                    tick={{ fill: '#64748b', fontSize: 10, fontWeight: 700 }}
-                                                    domain={[0, 100]}
                                                 />
                                                 <Tooltip
-                                                    cursor={{ fill: '#f8fafc' }}
+                                                    cursor={{ fill: '#f1f5f9', opacity: 0.4 }}
                                                     contentStyle={{
-                                                        backgroundColor: '#fff',
-                                                        borderRadius: '12px',
+                                                        borderRadius: '16px',
                                                         border: '1px solid #e2e8f0',
-                                                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                                                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                                        backdropFilter: 'blur(4px)',
+                                                        padding: '12px 16px'
                                                     }}
-                                                    itemStyle={{ fontWeight: 700, color: '#10b981', fontSize: '12px' }}
-                                                    formatter={(value) => [`${value}%`, 'Rata-rata Skor']}
+                                                    itemStyle={{ color: '#059669', fontWeight: 700 }}
+                                                    labelStyle={{ color: '#64748b', fontWeight: 600, marginBottom: '4px' }}
                                                 />
-                                                <Bar dataKey="avg" radius={[4, 4, 0, 0]} barSize={40}>
-                                                    {averageScoreData.map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill="#10b981" fillOpacity={1 - (index * 0.08)} />
-                                                    ))}
-                                                </Bar>
+                                                <Bar
+                                                    dataKey="avg"
+                                                    fill="url(#avgScoreGradient)"
+                                                    radius={[0, 10, 10, 0]}
+                                                    barSize={24}
+                                                    animationDuration={1000}
+                                                />
                                             </BarChart>
                                         </ResponsiveContainer>
                                     </div>

@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { Analytics } from "@vercel/analytics/next";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,6 +29,7 @@ export default function RootLayout({
     <html lang="id" className={`${plusJakarta.variable}`}>
       <body className="antialiased bg-slate-50 text-slate-900 font-sans">
         {children}
+        <Analytics />
       </body>
     </html>
   );
